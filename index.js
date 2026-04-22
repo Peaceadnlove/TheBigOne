@@ -14,8 +14,7 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 const db = require('./database');
 const V = require('./views');
 
-// ── SQLite session store (persists across restarts) ──
-const SQLiteStore = require('connect-sqlite3')(session);
+const PostgresStore = require('connect-pg-simple')(session);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -91,10 +90,16 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+const sessionStore = new PostgresStore({
+  conString: process.env.DATABASE_URL,
+  createTableIfMissing: true
+});
+
 app.use(session({
-  store: new SQLiteStore({ db: 'sessions.db', dir: __dirname }),
+  store: sessionStore,
   secret: process.env.SESSION_SECRET || 'pechepro_secret_2024',
-  resave: false, saveUninitialized: false,
+  resave: false, 
+  saveUninitialized: false,
   cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }
 }));
 
@@ -135,45 +140,12 @@ function generateReferralCode() {
 }
 
 
-// ── DB MIGRATIONS NOUVELLES TABLES ──
-async function runMigrations() {
-  const newTables = [
-    `CREATE TABLE IF NOT EXISTS blog_posts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL, content TEXT NOT NULL, excerpt TEXT DEFAULT '',
-      image_url TEXT DEFAULT '', author TEXT DEFAULT 'Admin',
-      published INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS forum_threads (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL, title TEXT NOT NULL, content TEXT NOT NULL,
-      category TEXT DEFAULT 'Général', views INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS forum_replies (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      thread_id INTEGER NOT NULL, user_id INTEGER NOT NULL, content TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-  ];
-  const userCols = [
-    'ALTER TABLE users ADD COLUMN premium INTEGER DEFAULT 0',
-    'ALTER TABLE users ADD COLUMN premium_until DATETIME',
-  ];
-  for (const sql of newTables) await db.run2(sql).catch(()=>{});
-  for (const sql of userCols) await db.run2(sql).catch(()=>{});
-  console.log('✅ Migrations OK');
-}
-runMigrations();
-
 // ── HOMEPAGE ──
 app.get('/', async (req, res) => {
   try {
     const products = await db.all2('SELECT * FROM products WHERE active = 1');
     const content = await getContent();
-    const flashSales = await db.all2("SELECT * FROM products WHERE flash_sale = 1 AND active = 1 AND (flash_end IS NULL OR flash_end > datetime('now'))");
+    const flashSales = await db.all2("SELECT * FROM products WHERE flash_sale = 1 AND active = 1 AND (flash_end IS NULL OR flash_end > NOW())");
     res.send(V.home(req, req.session.user, products, content, flashSales));
   } catch(e) { console.error(e); res.send('Erreur serveur'); }
 });
@@ -251,7 +223,7 @@ app.get('/wishlist', requireAuth, async (req, res) => {
 app.post('/alerte-stock', requireAuth, async (req, res) => {
   try {
     const { product_id } = req.body;
-    await db.run2('INSERT OR IGNORE INTO stock_alerts (user_id, email, product_id) VALUES (?, ?, ?)',
+    await db.run2('INSERT INTO stock_alerts (user_id, email, product_id) VALUES (?, ?, ?) ON CONFLICT DO NOTHING',
       [req.session.user.id, req.session.user.email, product_id]);
     setFlash(req, 'Tu seras alerté dès que le produit est de nouveau disponible 🔔');
     res.redirect('back');
@@ -262,7 +234,7 @@ app.post('/alerte-stock', requireAuth, async (req, res) => {
 app.post('/newsletter', async (req, res) => {
   try {
     const { email } = req.body;
-    await db.run2('INSERT OR IGNORE INTO newsletter (email) VALUES (?)', [email.trim().toLowerCase()]);
+    await db.run2('INSERT INTO newsletter (email) VALUES (?) ON CONFLICT DO NOTHING', [email.trim().toLowerCase()]);
     setFlash(req, 'Inscription à la newsletter confirmée ! 📧');
     res.redirect('back');
   } catch(e) { res.redirect('back'); }
@@ -348,7 +320,7 @@ app.post('/register', async (req, res) => {
     await db.run2('UPDATE users SET points = 10 WHERE id = ?', [result.lastID]);
     await db.run2('INSERT INTO points_history (user_id, points, reason) VALUES (?, ?, ?)', [result.lastID, 10, 'Bienvenue sur PêchePro !']);
     req.session.user = { id: result.lastID, name: name.trim(), email: email.trim().toLowerCase(), role: 'user' };
-    if (req.body.newsletter) await db.run2('INSERT OR IGNORE INTO newsletter (email) VALUES (?)', [email.trim().toLowerCase()]).catch(()=>{});
+    if (req.body.newsletter) await db.run2('INSERT INTO newsletter (email) VALUES (?) ON CONFLICT DO NOTHING', [email.trim().toLowerCase()]).catch(()=>{});
     setFlash(req, `Bienvenue ${name} ! 🎣 Tu as reçu 10 points de bienvenue !`);
     res.redirect('/');
   } catch(e) { console.error(e); res.redirect('/register'); }
@@ -1028,9 +1000,9 @@ app.post('/admin/contenu', requireAdmin, async (req, res) => {
   try {
     const fields = ['hero_title', 'hero_subtitle', 'hero_cta', 'about_text', 'banner_text', 'banner_active'];
     for (const f of fields) {
-      if (req.body[f] !== undefined) await db.run2('INSERT OR REPLACE INTO site_content (key, value) VALUES (?, ?)', [f, req.body[f]]);
+      if (req.body[f] !== undefined) await db.run2('INSERT INTO site_content (key, value) VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value', [f, req.body[f]]);
     }
-    await db.run2('INSERT OR REPLACE INTO site_content (key, value) VALUES (?, ?)', ['banner_active', req.body.banner_active ? '1' : '0']);
+    await db.run2('INSERT INTO site_content (key, value) VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value', ['banner_active', req.body.banner_active ? '1' : '0']);
     req.session.adminFlash = 'Contenu mis à jour !';
     res.redirect('/admin/contenu');
   } catch(e) { res.redirect('/admin/contenu'); }
@@ -1153,42 +1125,7 @@ app.post('/admin/blog/:id/supprimer', requireAdmin, async (req, res) => {
 });
 
 
-// ── DB MIGRATIONS — NOUVELLES TABLES ──
-setTimeout(async () => {
-  const sqls = [
-    `CREATE TABLE IF NOT EXISTS product_requests (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL, title TEXT NOT NULL, description TEXT,
-      category TEXT DEFAULT 'Autre', status TEXT DEFAULT 'en_attente',
-      votes INTEGER DEFAULT 0, admin_note TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS product_request_votes (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      request_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
-      UNIQUE(request_id, user_id)
-    )`,
-    `CREATE TABLE IF NOT EXISTS suppliers (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL, contact_name TEXT, email TEXT, phone TEXT,
-      website TEXT, address TEXT, country TEXT DEFAULT 'France',
-      payment_terms TEXT, delivery_days INTEGER DEFAULT 7,
-      notes TEXT, active INTEGER DEFAULT 1,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS supplier_products (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      supplier_id INTEGER NOT NULL, product_id INTEGER NOT NULL,
-      purchase_price REAL DEFAULT 0, min_order INTEGER DEFAULT 1,
-      lead_time INTEGER DEFAULT 7,
-      UNIQUE(supplier_id, product_id)
-    )`,
-    'ALTER TABLE products ADD COLUMN purchase_price REAL DEFAULT 0',
-    'ALTER TABLE products ADD COLUMN reorder_threshold INTEGER DEFAULT 5',
-  ];
-  for (const s of sqls) await db.run2(s).catch(()=>{});
-  console.log('✅ Nouvelles tables créées');
-}, 1500);
+
 
 // ── DEMANDES PRODUITS ──
 app.get('/demandes', async (req, res) => {
@@ -1263,7 +1200,7 @@ app.post('/admin/fournisseurs/:id/supprimer', requireAdmin, async (req, res) => 
 app.post('/admin/fournisseurs/lier', requireAdmin, async (req, res) => {
   try {
     const { supplier_id, product_id, purchase_price, min_order, lead_time } = req.body;
-    await db.run2('INSERT OR REPLACE INTO supplier_products (supplier_id,product_id,purchase_price,min_order,lead_time) VALUES (?,?,?,?,?)',
+    await db.run2('INSERT INTO supplier_products (supplier_id,product_id,purchase_price,min_order,lead_time) VALUES (?,?,?,?,?) ON CONFLICT (supplier_id, product_id) DO UPDATE SET purchase_price=EXCLUDED.purchase_price, min_order=EXCLUDED.min_order, lead_time=EXCLUDED.lead_time',
       [supplier_id, product_id, parseFloat(purchase_price)||0, parseInt(min_order)||1, parseInt(lead_time)||7]);
     await db.run2('UPDATE products SET purchase_price=? WHERE id=?', [parseFloat(purchase_price)||0, product_id]);
     req.session.adminFlash = 'Produit lié au fournisseur';
@@ -1301,7 +1238,7 @@ app.get('/admin/finances', requireAdmin, async (req, res) => {
     const totalOrders = (await db.get2("SELECT COUNT(*) as c FROM orders WHERE status='payé' OR status='expédié'")).c;
     const avgOrder = totalOrders > 0 ? revenue / totalOrders : 0;
     const revenueByMonth = await db.all2(`
-      SELECT strftime('%Y-%m', created_at) as month, 
+      SELECT TO_CHAR(created_at, 'YYYY-MM') as month, 
         COALESCE(SUM(total),0) as revenue, COUNT(*) as orders
       FROM orders WHERE status='payé' OR status='expédié'
       GROUP BY month ORDER BY month DESC LIMIT 12`);
