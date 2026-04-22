@@ -1,148 +1,495 @@
-// views.js — Design Premium pour THE BIG ONE
+// views.js — PêchePro (redesign premium 2026)
+// Palette : bleu ardoise + ambre doré + blanc nacré
+// Polices : Cormorant Garamond (titres) + Plus Jakarta Sans (corps)
+
 const CSS = `
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@300;400;600&display=swap');
-
-:root {
-  --bg: #050505;
-  --surface: #121212;
-  --primary: #d4af37;    /* Or / Gold */
-  --primary-light: #f1d592;
-  --text: #ffffff;
-  --muted: #888888;
-  --border: #222222;
-  --accent: #ff3e3e;
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+:root{
+  --ink:#0b1523;--ink2:#152032;--ink3:#1f2f45;
+  --amber:#c8841e;--amber2:#e5a83a;--amber3:#f5c96a;
+  --cream:#f2ede4;--white:#ffffff;--smoke:#8fa3bc;--fog:#4a6480;
+  --red:#c0392b;--green:#1fa35c;--r:14px;--sh:0 12px 40px rgba(0,0,0,.4);
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--ink);color:var(--cream);min-height:100vh;line-height:1.6}
+::selection{background:var(--amber);color:var(--ink)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--ink2)}::-webkit-scrollbar-thumb{background:var(--amber);border-radius:3px}
+.banner{background:linear-gradient(90deg,var(--amber),var(--amber2));color:var(--ink);text-align:center;padding:.55rem 1rem;font-size:.8rem;font-weight:700;letter-spacing:.04em}
+nav{background:rgba(11,21,35,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(200,132,30,.15);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;height:66px}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--amber2);text-decoration:none;letter-spacing:.3px}
+.nav-logo span{color:var(--cream);font-style:italic}
+.nav-links{display:flex;align-items:center;gap:.15rem;list-style:none}
+.nav-links a{color:var(--smoke);text-decoration:none;padding:.45rem .85rem;border-radius:8px;font-size:.865rem;font-weight:500;transition:all .2s}
+.nav-links a:hover{color:var(--cream);background:rgba(255,255,255,.05)}
+.nav-cart{background:var(--amber)!important;color:var(--ink)!important;font-weight:700!important}
+.nav-cart:hover{background:var(--amber2)!important}
+.cart-badge{background:var(--ink);color:var(--amber2);border-radius:50%;padding:0 5px;font-size:.68rem;margin-left:3px;font-weight:800}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.65rem 1.4rem;border-radius:10px;font-weight:600;font-size:.875rem;cursor:pointer;text-decoration:none;border:none;transition:all .22s;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap}
+.btn-primary{background:var(--amber);color:var(--ink)}.btn-primary:hover{background:var(--amber2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(200,132,30,.3)}
+.btn-outline{background:transparent;color:var(--cream);border:1.5px solid rgba(255,255,255,.18)}.btn-outline:hover{border-color:var(--amber);color:var(--amber2)}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--cream);border:1px solid rgba(255,255,255,.08)}.btn-ghost:hover{background:rgba(255,255,255,.09)}
+.btn-danger{background:rgba(192,57,43,.15);color:#e74c3c;border:1px solid rgba(192,57,43,.3)}.btn-danger:hover{background:rgba(192,57,43,.25)}
+.btn-sm{padding:.4rem .9rem;font-size:.8rem}.btn-full{width:100%}
+.flash{padding:.75rem 1rem;border-radius:10px;margin:.75rem 0;font-size:.875rem;font-weight:500}
+.flash-success{background:rgba(31,163,92,.12);color:#2ecc71;border:1px solid rgba(31,163,92,.25)}
+.flash-error{background:rgba(192,57,43,.12);color:#e74c3c;border:1px solid rgba(192,57,43,.25)}
+.hero{min-height:94vh;display:flex;align-items:center;position:relative;overflow:hidden}
+.hero-bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 45%}
+.hero-ov1{position:absolute;inset:0;background:linear-gradient(110deg,rgba(11,21,35,.88) 0%,rgba(11,21,35,.5) 55%,rgba(11,21,35,.65) 100%)}
+.hero-ov2{position:absolute;inset:0;background:linear-gradient(to top,var(--ink) 0%,transparent 35%)}
+.hero-content{max-width:1200px;margin:0 auto;padding:4rem 2rem;position:relative;z-index:2;display:grid;grid-template-columns:1.1fr 1fr;gap:5rem;align-items:center}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(200,132,30,.13);color:var(--amber2);border:1px solid rgba(200,132,30,.3);padding:.35rem 1rem;border-radius:50px;font-size:.73rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:1.5rem}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5.5vw,4.2rem);line-height:1.08;color:var(--white);margin-bottom:1.25rem;font-weight:700}
+.hero h1 em{color:var(--amber2);font-style:italic}
+.hero-sub{color:rgba(255,255,255,.6);font-size:1.02rem;line-height:1.75;margin-bottom:2.2rem;max-width:460px}
+.hero-btns{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:2.5rem}
+.hero-pills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem}
+.hero-pill{background:rgba(255,255,255,.06);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.8rem 1rem;text-align:center}
+.hero-pill h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--amber2);font-weight:700;line-height:1}
+.hero-pill p{font-size:.7rem;color:rgba(255,255,255,.45);margin-top:.2rem}
+.hero-cards{display:flex;flex-direction:column;gap:.75rem}
+.hero-card{background:rgba(255,255,255,.05);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:1rem 1.1rem;display:flex;align-items:center;gap:.9rem;transition:all .25s}
+.hero-card:hover{background:rgba(200,132,30,.1);border-color:rgba(200,132,30,.3);transform:translateX(5px)}
+.hero-card .ci{font-size:1.5rem;width:36px;text-align:center;flex-shrink:0}
+.hero-card h4{font-weight:600;font-size:.85rem;color:var(--white);margin-bottom:.1rem}
+.hero-card p{font-size:.75rem;color:rgba(255,255,255,.45);margin:0}
+.section{padding:5rem 2rem}.container{max-width:1200px;margin:0 auto}
+.section-eyebrow{color:var(--amber);font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.65rem;display:block}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:700;color:var(--white);margin-bottom:.6rem;line-height:1.15}
+.section-sub{color:var(--smoke);font-size:.95rem;margin-bottom:2.5rem}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.cat-card{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:var(--r);padding:1.75rem 1.25rem;text-align:center;text-decoration:none;transition:all .25s;position:relative;overflow:hidden}
+.cat-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(200,132,30,.07),transparent);opacity:0;transition:.3s}
+.cat-card:hover{border-color:rgba(200,132,30,.35);transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.3)}.cat-card:hover::after{opacity:1}
+.cat-icon{font-size:2.4rem;margin-bottom:.75rem;display:block}
+.cat-card h3{font-size:.9rem;font-weight:600;color:var(--white);margin-bottom:.25rem}.cat-card p{font-size:.75rem;color:var(--smoke)}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:1.1rem}
+.product-card{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:var(--r);overflow:hidden;transition:all .25s;display:flex;flex-direction:column}
+.product-card:hover{border-color:rgba(200,132,30,.3);transform:translateY(-4px);box-shadow:var(--sh)}
+.product-img{height:185px;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:3.5rem;overflow:hidden;position:relative}
+.product-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}.product-card:hover .product-img img{transform:scale(1.04)}
+.product-badge{position:absolute;top:.6rem;left:.6rem;background:var(--amber);color:var(--ink);padding:.2rem .65rem;border-radius:50px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.product-body{padding:1.15rem;flex:1;display:flex;flex-direction:column;gap:.35rem}
+.product-cat{font-size:.68rem;color:var(--amber);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.product-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:700;color:var(--white);line-height:1.3}
+.product-desc{font-size:.8rem;color:var(--smoke);line-height:1.5;flex:1}
+.product-footer{display:flex;align-items:center;justify-content:space-between;padding-top:.7rem;border-top:1px solid rgba(255,255,255,.06);margin-top:.35rem}
+.product-price{font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:var(--amber2);font-weight:700}
+.product-stock{font-size:.7rem;color:var(--smoke)}.product-stock.low{color:#e67e22}
+.catalog-header{background:var(--ink2);border-bottom:1px solid rgba(255,255,255,.06);padding:2.5rem 2rem}
+.catalog-header h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--white)}.catalog-header p{color:var(--smoke);margin-top:.3rem;font-size:.875rem}
+.filters{background:var(--ink2);border-bottom:1px solid rgba(255,255,255,.06);padding:1rem 2rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.filter-btn{padding:.38rem 1rem;border-radius:8px;border:1px solid rgba(255,255,255,.09);background:transparent;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;font-size:.8rem;color:var(--smoke);transition:all .2s;text-decoration:none;display:inline-block}
+.filter-btn.active,.filter-btn:hover{background:var(--amber);color:var(--ink);border-color:var(--amber);font-weight:700}
+.search-box{margin-left:auto;display:flex;gap:.5rem}
+.search-box input{padding:.42rem .9rem;border:1px solid rgba(255,255,255,.09);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;outline:none;background:var(--ink3);color:var(--cream)}.search-box input:focus{border-color:var(--amber)}
+.product-detail{display:grid;grid-template-columns:1fr 1fr;gap:4rem;padding:4rem 2rem;max-width:1200px;margin:0 auto}
+.product-detail-img{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:20px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:7rem;overflow:hidden}
+.product-detail-img img{width:100%;height:100%;object-fit:cover}
+.product-detail-info{display:flex;flex-direction:column;gap:1.2rem}
+.category-tag{color:var(--amber);font-weight:700;text-transform:uppercase;font-size:.72rem;letter-spacing:.12em}
+.detail-price{font-family:'Cormorant Garamond',serif;font-size:2.4rem;color:var(--amber2);font-weight:700}
+.detail-desc{color:var(--smoke);line-height:1.8;font-size:.95rem}
+.qty-control{display:flex;align-items:center;gap:.7rem}
+.qty-btn{width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:var(--ink3);color:var(--cream);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}.qty-btn:hover{border-color:var(--amber);color:var(--amber)}
+.qty-input{width:60px;text-align:center;font-size:1rem;font-weight:600;padding:.4rem;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:var(--ink3);color:var(--cream)}
+.cart-layout{display:grid;grid-template-columns:1fr 360px;gap:1.5rem;max-width:1200px;margin:0 auto;padding:3rem 2rem}
+.cart-items{display:flex;flex-direction:column;gap:.75rem}
+.cart-item{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:1.1rem;display:flex;align-items:center;gap:1.25rem;transition:border-color .2s}.cart-item:hover{border-color:rgba(200,132,30,.2)}
+.cart-item-img{width:72px;height:72px;border-radius:10px;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,.06)}
+.cart-item-img img{width:100%;height:100%;object-fit:cover}
+.cart-item-info{flex:1}.cart-item-info h4{font-weight:600;font-size:.9rem;color:var(--white);margin-bottom:.2rem}.cart-item-info p{color:var(--smoke);font-size:.8rem}
+.cart-item-price{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--amber2);font-weight:700;white-space:nowrap}
+.cart-summary{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:1.5rem;height:fit-content;position:sticky;top:80px}
+.cart-summary h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--white);margin-bottom:1.25rem}
+.summary-line{display:flex;justify-content:space-between;margin-bottom:.55rem;font-size:.875rem;color:var(--smoke)}
+.summary-total{display:flex;justify-content:space-between;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.08);margin-top:.75rem;font-weight:700;font-size:1.1rem;color:var(--white)}
+.promo-box{background:var(--ink3);border-radius:10px;padding:.9rem;margin-top:.9rem;border:1px solid rgba(255,255,255,.07)}
+.promo-box input{width:100%;padding:.55rem .9rem;border:1px solid rgba(255,255,255,.09);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;margin-bottom:.5rem;outline:none;background:var(--ink);color:var(--cream)}.promo-box input:focus{border-color:var(--amber)}
+.promo-applied{background:rgba(200,132,30,.12);color:var(--amber2);border:1px solid rgba(200,132,30,.25);padding:.5rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.cart-empty{text-align:center;padding:6rem 2rem}
+.auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ink);padding:2rem;position:relative}
+.auth-bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(200,132,30,.05),transparent 65%)}
+.auth-box{background:var(--ink2);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:2.5rem;width:100%;max-width:420px;position:relative;z-index:1}
+.auth-box h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--white);margin-bottom:.3rem}
+.auth-box>p{color:var(--smoke);margin-bottom:1.75rem;font-size:.875rem}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-weight:600;font-size:.75rem;color:var(--smoke);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.07em}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:.7rem 1rem;border:1px solid rgba(255,255,255,.09);border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;outline:none;transition:border .2s;background:var(--ink3);color:var(--cream)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--amber);background:var(--ink2)}
+.form-group textarea{resize:vertical;min-height:90px}
+.form-link{text-align:center;margin-top:1.25rem;font-size:.875rem;color:var(--smoke)}.form-link a{color:var(--amber2);font-weight:600;text-decoration:none}
+.review-card{background:var(--ink3);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:1rem;margin-bottom:.6rem}
+.review-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
+.review-author{font-weight:600;font-size:.875rem;color:var(--white)}.stars{color:var(--amber2);font-size:.9rem;letter-spacing:.08em}
+.success-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ink);padding:2rem}
+.success-box{background:var(--ink2);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:3rem;max-width:480px;width:100%;text-align:center}
+.success-icon{font-size:3.5rem;margin-bottom:1rem;animation:pop .5s ease}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.success-box h1{font-family:'Cormorant Garamond',serif;color:var(--white);font-size:2rem;font-weight:700;margin-bottom:.5rem}
+.success-box p{color:var(--smoke);margin-bottom:1.5rem;line-height:1.7;font-size:.9rem}
+.order-details{background:var(--ink3);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:1.1rem;margin-bottom:1.5rem;text-align:left}
+.order-line{display:flex;justify-content:space-between;font-size:.875rem;margin-bottom:.35rem;color:var(--smoke)}.order-line strong{color:var(--cream)}
+.admin-layout{display:flex;min-height:100vh;background:var(--ink)}
+.admin-sidebar{width:240px;background:var(--ink2);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;overflow-y:auto}
+.admin-logo{padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:.6rem}
+.admin-logo h2{font-family:'Cormorant Garamond',serif;color:var(--white);font-size:1.2rem;font-weight:700}
+.admin-logo span{background:var(--amber);color:var(--ink);padding:.15rem .5rem;border-radius:4px;font-size:.65rem;font-weight:800;letter-spacing:.08em}
+.admin-nav{padding:.75rem 0;flex:1;display:flex;flex-direction:column}
+.admin-nav-section{padding:.4rem 1.25rem;color:var(--fog);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;margin-top:.5rem;display:block}
+.admin-nav a{display:flex;align-items:center;gap:.65rem;padding:.6rem 1.25rem;color:var(--smoke);text-decoration:none;font-size:.83rem;font-weight:500;transition:all .15s;border-left:2px solid transparent;margin:.1rem 0}
+.admin-nav a:hover,.admin-nav a.active{color:var(--white);background:rgba(255,255,255,.04);border-left-color:var(--amber)}
+.admin-nav a.active{color:var(--amber2)}
+.admin-nav a .icon{font-size:1rem;width:18px;text-align:center}
+.admin-main{margin-left:240px;flex:1;display:flex;flex-direction:column}
+.admin-topbar{background:var(--ink2);border-bottom:1px solid rgba(255,255,255,.06);padding:.9rem 1.75rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.admin-topbar h1{font-size:.95rem;font-weight:600;color:var(--white)}.admin-content{padding:1.75rem;flex:1}
+.admin-avatar{width:32px;height:32px;background:var(--amber);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink);font-weight:800;font-size:.85rem}
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1.75rem}
+.stat-card{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:1.25rem;position:relative;overflow:hidden;transition:border-color .2s}.stat-card:hover{border-color:rgba(200,132,30,.35)}
+.stat-card .stat-icon{font-size:1.5rem;margin-bottom:.6rem;opacity:.8}
+.stat-card .stat-value{font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--white);font-weight:700;line-height:1}
+.stat-card .stat-label{color:var(--smoke);font-size:.75rem;margin-top:.3rem}
+.stat-card .stat-accent{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),var(--amber2))}
+.admin-card{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;margin-bottom:1.25rem}
+.admin-card-header{padding:1rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
+.admin-card-header h3{font-weight:600;color:var(--white);font-size:.9rem;display:flex;align-items:center;gap:.5rem}
+table{width:100%;border-collapse:collapse}
+th{background:var(--ink3);padding:.6rem 1rem;text-align:left;font-size:.7rem;font-weight:700;color:var(--smoke);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid rgba(255,255,255,.06)}
+td{padding:.75rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);font-size:.85rem;vertical-align:middle;color:var(--smoke)}
+td strong{color:var(--cream)}tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.015)}
+.badge{display:inline-flex;align-items:center;padding:.2rem .65rem;border-radius:50px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge-pending{background:rgba(230,126,34,.12);color:#e67e22;border:1px solid rgba(230,126,34,.25)}
+.badge-paid{background:rgba(31,163,92,.12);color:#2ecc71;border:1px solid rgba(31,163,92,.25)}
+.badge-shipped{background:rgba(52,152,219,.12);color:#3498db;border:1px solid rgba(52,152,219,.25)}
+.badge-cancelled{background:rgba(192,57,43,.12);color:#e74c3c;border:1px solid rgba(192,57,43,.25)}
+.badge-admin{background:rgba(200,132,30,.12);color:var(--amber2);border:1px solid rgba(200,132,30,.25)}
+.badge-user{background:var(--ink3);color:var(--smoke);border:1px solid rgba(255,255,255,.08)}
+.badge-open{background:rgba(192,57,43,.12);color:#e74c3c;border:1px solid rgba(192,57,43,.25)}
+.badge-active{background:rgba(31,163,92,.12);color:#2ecc71;border:1px solid rgba(31,163,92,.25)}
+.badge-inactive{background:var(--ink3);color:var(--smoke);border:1px solid rgba(255,255,255,.08)}
+.chat-widget{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;font-family:'Plus Jakarta Sans',sans-serif}
+.chat-btn{width:52px;height:52px;border-radius:50%;background:var(--amber);border:none;cursor:pointer;font-size:1.3rem;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(200,132,30,.4);transition:all .2s}.chat-btn:hover{transform:scale(1.08);background:var(--amber2)}
+.chat-box{position:absolute;bottom:66px;right:0;width:300px;background:var(--ink2);border:1px solid rgba(255,255,255,.08);border-radius:16px;box-shadow:var(--sh);display:none;flex-direction:column;overflow:hidden;max-height:420px}.chat-box.open{display:flex}
+.chat-head{background:linear-gradient(90deg,var(--amber),var(--amber2));padding:.9rem 1rem;display:flex;align-items:center;gap:.6rem}
+.chat-head h4{font-weight:700;font-size:.875rem;color:var(--ink);flex:1}
+.chat-head button{background:none;border:none;cursor:pointer;font-size:1rem;color:var(--ink);line-height:1}
+.chat-msgs{flex:1;overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.5rem;min-height:200px;max-height:250px}
+.chat-msg{padding:.6rem .9rem;border-radius:10px;font-size:.82rem;max-width:85%;line-height:1.5}
+.chat-msg.bot{background:var(--ink3);color:var(--cream);align-self:flex-start}.chat-msg.user{background:var(--amber);color:var(--ink);align-self:flex-end;font-weight:600}
+.chat-typing{display:flex;gap:3px;align-items:center}.chat-typing span{width:5px;height:5px;border-radius:50%;background:var(--smoke);animation:pulse 1.2s infinite}.chat-typing span:nth-child(2){animation-delay:.2s}.chat-typing span:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.chat-input{display:flex;gap:.5rem;padding:.65rem;border-top:1px solid rgba(255,255,255,.07)}
+.chat-input input{flex:1;padding:.45rem .75rem;border:1px solid rgba(255,255,255,.09);border-radius:8px;font-size:.8rem;outline:none;font-family:inherit;background:var(--ink3);color:var(--cream)}.chat-input input:focus{border-color:var(--amber)}
+.chat-input button{padding:.4rem .8rem;background:var(--amber);border:none;border-radius:8px;cursor:pointer;font-size:.85rem;color:var(--ink);font-weight:700}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}.reveal.visible{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:.12s}.reveal-delay-2{transition-delay:.24s}.reveal-delay-3{transition-delay:.36s}.reveal-delay-4{transition-delay:.48s}
+@media(max-width:900px){.hero-content{grid-template-columns:1fr;gap:2rem}.hero-cards{display:none}.cat-grid{grid-template-columns:1fr 1fr}.cart-layout{grid-template-columns:1fr}.product-detail{grid-template-columns:1fr;gap:2rem;padding:2rem 1rem}.stats-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){nav{padding:0 1rem}.nav-links a:not(.nav-cart){display:none}.section{padding:3rem 1rem}.cat-grid{grid-template-columns:1fr 1fr}.products-grid{grid-template-columns:1fr 1fr}}
+</style>`;
 
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
-
-/* Navigation */
-nav { 
-  background: rgba(5, 5, 5, 0.95); 
-  padding: 1.5rem 5%; 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
-}
-.logo { font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 1.8rem; color: var(--primary); text-decoration: none; letter-spacing: -1px; }
-.nav-links { display: flex; gap: 2rem; align-items: center; }
-.nav-links a { text-decoration: none; color: var(--text); font-weight: 400; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
-.nav-links a:hover { color: var(--primary); }
-
-/* Hero */
-.hero { 
-  height: 80vh;
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
-  text-align: center; border-bottom: 1px solid var(--border);
-}
-.hero h1 { font-family: 'Syncopate', sans-serif; font-size: clamp(3rem, 10vw, 6rem); margin-bottom: 1rem; color: var(--primary); line-height: 1; }
-.hero p { color: var(--muted); font-size: 1.2rem; max-width: 600px; margin-bottom: 2rem; }
-
-/* Grid */
-.container { padding: 5rem 5%; }
-.grid { 
-  display: grid; 
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-  gap: 3rem; 
-}
-.card { 
-  background: var(--surface); 
-  border: 1px solid var(--border); 
-  border-radius: 0px; /* Look carré plus luxe */
-  transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  position: relative; overflow: hidden;
-}
-.card:hover { border-color: var(--primary); transform: translateY(-10px); }
-.card-img { width: 100%; height: 350px; object-fit: cover; filter: grayscale(20%); transition: 0.5s; }
-.card:hover .card-img { filter: grayscale(0%); transform: scale(1.05); }
-.card-content { padding: 1.5rem; background: var(--surface); }
-.card-title { font-family: 'Syncopate', sans-serif; font-size: 1rem; margin-bottom: 0.5rem; color: var(--text); }
-.card-price { font-size: 1.2rem; font-weight: 600; color: var(--primary); }
-
-/* Buttons */
-.btn { 
-  padding: 1rem 2rem; border: 1px solid var(--primary); background: transparent; 
-  color: var(--primary); text-decoration: none; font-family: 'Syncopate', sans-serif; font-size: 0.8rem;
-  transition: 0.3s; cursor: pointer; display: inline-block;
-}
-.btn:hover { background: var(--primary); color: #000; }
-.btn-full { background: var(--primary); color: #000; width: 100%; text-align: center; }
-
-footer { padding: 5rem 5%; border-top: 1px solid var(--border); text-align: center; color: var(--muted); font-size: 0.8rem; letter-spacing: 2px; }
-</style>
-`;
-
-const layout = (title, content, user = null) => `
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>${title} | THE BIG ONE</title>
-    ${CSS}
-</head>
-<body>
-    <nav>
-        <a href="/" class="logo">THE BIG ONE</a>
-        <div class="nav-links">
-            <a href="/">Shop</a>
-            ${user ? `
-                <a href="/profil">Compte</a>
-                ${user.role === 'admin' ? '<a href="/admin" style="color:var(--primary)">Panel</a>' : ''}
-                <a href="/logout">Quitter</a>
-            ` : '<a href="/login">Entrer</a>'}
-        </div>
-    </nav>
-    ${content}
-    <footer>
-        <p>THE BIG ONE &copy; 2024 — NO LIMITS.</p>
-    </footer>
-</body>
-</html>
-`;
-
-module.exports = {
-  home: (products, content, user) => layout('Store', `
-    <section class="hero">
-        <p style="text-transform: uppercase; letter-spacing: 5px; margin-bottom: 10px;">Équipement de légende</p>
-        <h1>THE BIG ONE</h1>
-        <p>Ne vous contentez pas du petit. Visez le record.</p>
-        <a href="#shop" class="btn">Explorer la collection</a>
-    </section>
-    <div class="container" id="shop">
-        <div class="grid">
-            ${products.map(p => `
-                <div class="card">
-                    <img src="${p.image || 'https://images.unsplash.com/photo-1544376798-89aa6b82c6cd?q=80&w=600'}" class="card-img">
-                    <div class="card-content">
-                        <h3 class="card-title">${p.name}</h3>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem">
-                            <span class="card-price">${p.price} CHF</span>
-                            <a href="/product/${p.id}" class="btn" style="padding: 0.5rem 1rem;">Détails</a>
-                        </div>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
+function layout(title, body, user, cartCount, content = {}) {
+  const banner = content.banner_active === '1' && content.banner_text ? `<div class="banner">${content.banner_text}</div>` : '';
+  const cc = cartCount || 0;
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} — PêchePro</title>${CSS}</head><body>
+${banner}
+<nav>
+  <a href="/" class="nav-logo">Pêche<span>Pro</span></a>
+  <ul class="nav-links">
+    <a href="/catalogue">Catalogue</a>
+    ${user ? `<a href="/compte">Mon compte</a>` : `<a href="/login">Connexion</a>`}
+    ${user && user.role === 'admin' ? `<a href="/admin">Admin</a>` : ''}
+    <a href="/panier" class="nav-cart">🛒 Panier${cc > 0 ? `<span class="cart-badge">${cc}</span>` : ''}</a>
+  </ul>
+</nav>
+${body}
+<footer style="background:var(--ink2);border-top:1px solid rgba(255,255,255,.06);padding:2.5rem 2rem;margin-top:2rem">
+  <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+    <div><div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--amber2);margin-bottom:.3rem">PêchePro</div><p style="color:var(--smoke);font-size:.8rem">Matériel expert pour pêcheurs passionnés</p></div>
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
+      <a href="/catalogue" style="color:var(--smoke);text-decoration:none;font-size:.85rem">Catalogue</a>
+      <a href="/tickets" style="color:var(--smoke);text-decoration:none;font-size:.85rem">Support</a>
+      ${user ? `<a href="/compte" style="color:var(--smoke);text-decoration:none;font-size:.85rem">Mon compte</a>` : ''}
     </div>
-  `, user),
+    <p style="color:var(--fog);font-size:.75rem">© ${new Date().getFullYear()} PêchePro — Fait avec 🎣</p>
+  </div>
+</footer>
+<div class="chat-widget">
+  <div class="chat-box" id="chatBox">
+    <div class="chat-head"><span style="font-size:1.2rem">🎣</span><h4>Support PêchePro</h4><button onclick="document.getElementById('chatBox').classList.remove('open')">×</button></div>
+    <div class="chat-msgs" id="chatMsgs"><div class="chat-msg bot">Bonjour ! Comment puis-je t'aider ? 😊</div></div>
+    <div class="chat-input"><input id="chatInp" placeholder="Écris un message..." onkeydown="if(event.key==='Enter')sendChat()"><button onclick="sendChat()">→</button></div>
+  </div>
+  <button class="chat-btn" onclick="document.getElementById('chatBox').classList.toggle('open')">💬</button>
+</div>
+<script>
+  const obs = new IntersectionObserver(e=>e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible')}),{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  function sendChat(){const inp=document.getElementById('chatInp');const msg=inp.value.trim();if(!msg)return;const msgs=document.getElementById('chatMsgs');msgs.innerHTML+='<div class="chat-msg user">'+msg+'</div>';inp.value='';msgs.scrollTop=msgs.scrollHeight;const t=document.createElement('div');t.className='chat-msg bot';t.innerHTML='<div class="chat-typing"><span></span><span></span><span></span></div>';msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;setTimeout(()=>{t.remove();const r={livraison:'Livraison standard gratuite. Express +4.99 CHF. 📦',retour:'14 jours pour retourner. Crée un ticket. ✅',paiement:'Paiement sécurisé Stripe. 🔒',point:'1 CHF = 1 point. 100 pts = 5 CHF. 🌟',commande:'Suis ta commande dans "Mon compte". 📋'};let rep='Pour une question précise, crée un ticket support — on répond sous 1h ! 💪';for(const [k,v] of Object.entries(r))if(msg.toLowerCase().includes(k)){rep=v;break;}msgs.innerHTML+='<div class="chat-msg bot">'+rep+'</div>';msgs.scrollTop=msgs.scrollHeight;},900);}
+</script>
+</body></html>`;
+}
 
-  login: () => layout('Authentification', `
-    <div style="max-width: 450px; margin: 10vh auto; padding: 3rem; background:var(--surface); border: 1px solid var(--border)">
-        <h2 style="font-family:'Syncopate'; color:var(--primary); margin-bottom:2rem; text-align:center">ACCÈS MEMBRE</h2>
-        <form action="/login" method="POST" style="display:flex; flex-direction:column; gap:1.5rem">
-            <input type="email" name="email" placeholder="EMAIL" style="background:transparent; border:none; border-bottom:1px solid var(--border); padding:1rem; color:white; outline:none" required>
-            <input type="password" name="password" placeholder="MOT DE PASSE" style="background:transparent; border:none; border-bottom:1px solid var(--border); padding:1rem; color:white; outline:none" required>
-            <button type="submit" class="btn btn-full">SE CONNECTER</button>
-        </form>
-        <div style="margin-top:2rem; text-align:center">
-            <a href="/register" style="color:var(--muted); text-decoration:none; font-size:0.8rem">CRÉER UN COMPTE</a>
-        </div>
+function flash(req){const msgs=req.session.flash||[];req.session.flash=[];if(!msgs.length)return'';return msgs.map(m=>`<div class="flash flash-${m.type}">${m.msg}</div>`).join('');}
+function getCartCount(req){return Object.values(req.session.cart||{}).reduce((s,q)=>s+q,0);}
+function catEmoji(cat){return{'Cannes':'🎣','Moulinets':'🌀','Leurres':'🐟','Accessoires':'🎒'}[cat]||'🎣';}
+function stars(n){return'★'.repeat(n)+'☆'.repeat(5-n);}
+function productCard(p){return`<div class="product-card"><div class="product-img"><img src="${p.image}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="display:none;font-size:3.5rem;width:100%;height:100%;align-items:center;justify-content:center;background:var(--ink3)">${catEmoji(p.category)}</span>${p.featured?'<span class="product-badge">✦ Top</span>':''}</div><div class="product-body"><div class="product-cat">${p.category}</div><div class="product-name">${p.name}</div><div class="product-desc">${(p.description||'').substring(0,75)}${(p.description||'').length>75?'…':''}</div><div class="product-footer"><span class="product-price">${p.price.toFixed(2)} CHF</span><span class="product-stock ${p.stock<5?'low':''}">${p.stock>0?`${p.stock} dispo`:'Rupture'}</span></div><a href="/produit/${p.id}" class="btn btn-outline btn-full" style="margin-top:.75rem;font-size:.8rem">Voir le produit →</a></div></div>`;}
+function adminLayout(title,content,activeKey){const nav=[{section:'Vue d\'ensemble'},{href:'/admin',icon:'◉',label:'Dashboard',key:'dashboard'},{section:'Boutique'},{href:'/admin/commandes',icon:'📦',label:'Commandes',key:'commandes'},{href:'/admin/produits',icon:'🛒',label:'Produits',key:'produits'},{href:'/admin/produits/nouveau',icon:'+',label:'Ajouter produit',key:'nouveau'},{href:'/admin/promos',icon:'🎟',label:'Codes promo',key:'promos'},{section:'Communauté'},{href:'/admin/utilisateurs',icon:'👥',label:'Utilisateurs',key:'users'},{href:'/admin/tickets',icon:'💬',label:'Support tickets',key:'tickets'},{href:'/admin/avis',icon:'⭐',label:'Avis clients',key:'avis'},{section:'Paramètres'},{href:'/admin/contenu',icon:'✏️',label:'Contenu & Bannière',key:'contenu'},{href:'/admin/newsletter',icon:'📧',label:'Newsletter',key:'newsletter'},{href:'/admin/blog',icon:'📝',label:'Blog',key:'blog'},{section:'Gestion interne'},{href:'/admin/fournisseurs',icon:'🏭',label:'Fournisseurs',key:'fournisseurs'},{href:'/admin/stocks',icon:'📦',label:'Stocks',key:'stocks'},{href:'/admin/finances',icon:'💰',label:'Finances & Marges',key:'finances'},{href:'/',icon:'↗',label:'Voir le site',key:''},{href:'/logout',icon:'→',label:'Déconnexion',key:''}];const navHTML=nav.map(n=>{if(n.section)return`<div class="admin-nav-section">${n.section}</div>`;return`<a href="${n.href}" class="${activeKey===n.key?'active':''}"><span class="icon">${n.icon}</span>${n.label}</a>`;}).join('');return`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} — Admin PêchePro</title>${CSS}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\/script></head><body><div class="admin-layout"><aside class="admin-sidebar"><div class="admin-logo"><span style="font-size:1.2rem">🎣</span><h2>PêchePro</h2><span>ADMIN</span></div><nav class="admin-nav">${navHTML}</nav></aside><div class="admin-main"><div class="admin-topbar"><h1>${title}</h1><div style="display:flex;align-items:center;gap:.75rem"><span style="font-size:.8rem;color:var(--smoke)">Admin</span><div class="admin-avatar">A</div></div></div><div class="admin-content">${content}</div></div></div></body></html>`;}
+
+
+// ══════════════════════════════════════════════
+//  PAGE EXPORTS
+// ══════════════════════════════════════════════
+
+exports.home = (req, user, products, content, flashSales) => {
+  const safeProducts = Array.isArray(products) ? products : [];
+  const featured = safeProducts.filter(p => p.featured);
+  const flashItems = Array.isArray(flashSales) ? flashSales : [];
+  const flashBanner = flashItems.length ? `
+  <section style="background:linear-gradient(135deg,#b03020,#d45020);padding:1.5rem 2rem;text-align:center">
+    <div class="container">
+      <p style="font-weight:800;font-size:1.05rem;color:#fff;margin-bottom:.9rem">⚡ FLASH SALE — Offres limitées !</p>
+      <div class="products-grid" style="max-width:900px;margin:0 auto">${flashItems.slice(0,4).map(p=>productCard(p)).join('')}</div>
     </div>
-  `),
-  
-  // Tu peux continuer avec les autres fonctions (register, profile, etc.)
+  </section>` : '';
+  const body = `
+    <div class="hero">
+      <img class="hero-bg-img" src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&q=80&auto=format&fit=crop" alt="Pêcheur" onerror="this.style.display='none'">
+      <div class="hero-ov1"></div><div class="hero-ov2"></div>
+      <div class="hero-content">
+        <div>
+          <div class="hero-eyebrow reveal">🎣 Matériel expert · Suisse</div>
+          <h1 class="reveal reveal-delay-1">La pêche,<br>une <em>passion</em><br>qui se vit</h1>
+          <p class="hero-sub reveal reveal-delay-2">${content.hero_subtitle||'Du matériel sélectionné pour les pêcheurs exigeants.'}</p>
+          <div class="hero-btns reveal reveal-delay-3">
+            <a href="/catalogue" class="btn btn-primary" style="padding:.9rem 2rem;font-size:1rem">${content.hero_cta||'Explorer le catalogue'} →</a>
+            <a href="/register" class="btn btn-outline" style="padding:.9rem 2rem;font-size:1rem">Créer un compte</a>
+          </div>
+          <div class="hero-pills reveal reveal-delay-4">
+            <div class="hero-pill"><h3>500+</h3><p>Références</p></div>
+            <div class="hero-pill"><h3>12k+</h3><p>Clients</p></div>
+            <div class="hero-pill"><h3>4.9★</h3><p>Note moy.</p></div>
+          </div>
+        </div>
+        <div class="hero-cards reveal reveal-delay-2">
+          <div class="hero-card"><div class="ci">🎣</div><div><h4>Cannes premium</h4><p>Carbone haute modulus</p></div></div>
+          <div class="hero-card"><div class="ci">🌀</div><div><h4>Moulinets top</h4><p>Shimano, Daiwa & co</p></div></div>
+          <div class="hero-card"><div class="ci">🐟</div><div><h4>Leurres efficaces</h4><p>Testés sur le terrain</p></div></div>
+          <div class="hero-card"><div class="ci">⚡</div><div><h4>Livraison 24h</h4><p>Expédié le jour même</p></div></div>
+          <div class="hero-card"><div class="ci">🎁</div><div><h4>Points fidélité</h4><p>1 CHF = 1 point</p></div></div>
+          <div class="hero-card"><div class="ci">🔒</div><div><h4>Paiement sécurisé</h4><p>Stripe SSL</p></div></div>
+        </div>
+      </div>
+    </div>
+    ${flashBanner}
+    <section class="section"><div class="container">
+      <span class="section-eyebrow reveal">Catégories</span>
+      <h2 class="section-title reveal reveal-delay-1">Tout ce qu'il vous faut</h2>
+      <p class="section-sub reveal reveal-delay-2">Du matériel pour tous les styles et niveaux</p>
+      <div class="cat-grid">
+        <a href="/catalogue?cat=Cannes" class="cat-card reveal"><span class="cat-icon">🎣</span><h3>Cannes</h3><p>Spinning, télescopique, coup</p></a>
+        <a href="/catalogue?cat=Moulinets" class="cat-card reveal reveal-delay-1"><span class="cat-icon">🌀</span><h3>Moulinets</h3><p>Shimano, Daiwa, Mitchell</p></a>
+        <a href="/catalogue?cat=Leurres" class="cat-card reveal reveal-delay-2"><span class="cat-icon">🐟</span><h3>Leurres</h3><p>Shads, poppers, swimbaits</p></a>
+        <a href="/catalogue?cat=Accessoires" class="cat-card reveal reveal-delay-3"><span class="cat-icon">🎒</span><h3>Accessoires</h3><p>Tout le reste</p></a>
+      </div>
+    </div></section>
+    <section class="section" style="background:var(--ink2);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)"><div class="container">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem">
+        <div><span class="section-eyebrow reveal">Sélection</span><h2 class="section-title reveal reveal-delay-1" style="margin-bottom:0">Les favoris</h2></div>
+        <a href="/catalogue" class="btn btn-outline reveal reveal-delay-2">Voir tout →</a>
+      </div>
+      ${featured.length ? `<div class="products-grid">${featured.map(p=>productCard(p)).join('')}</div>` : `<p style="color:var(--smoke)">Aucun produit pour l'instant. <a href="/admin/produits/nouveau" style="color:var(--amber2)">Ajouter depuis l'admin →</a></p>`}
+    </div></section>
+    <section class="section"><div class="container" style="max-width:780px;text-align:center">
+      <span class="section-eyebrow reveal">Notre mission</span>
+      <h2 class="section-title reveal reveal-delay-1">${content.about_text||'Du matos pro, sans prise de tête'}</h2>
+      <p style="color:var(--smoke);margin:1rem 0 2.5rem;line-height:1.85;font-size:.95rem" class="reveal reveal-delay-2">On sélectionne le meilleur matériel pour que vous passiez plus de temps à pêcher qu'à chercher.</p>
+      <a href="/catalogue" class="btn btn-outline reveal reveal-delay-3">Explorer le catalogue →</a>
+    </div></section>`;
+  return layout('Accueil', body, user, getCartCount(req), content);
 };
+
+exports.catalogue = (req, user, products, cat, search, min, max, sort, wishlist) => {
+  const cats = ['Cannes','Moulinets','Leurres','Accessoires'];
+  const wl = wishlist || [];
+  const safeProducts = Array.isArray(products) ? products : [];
+  const body = `
+    <div class="catalog-header"><div class="container">
+      <h1>Catalogue</h1>
+      <p>${safeProducts.length} produit${safeProducts.length>1?'s':''} ${cat?`dans "${cat}"`:'disponibles'}</p>
+    </div></div>
+    <div class="filters">
+      <a href="/catalogue" class="filter-btn ${!cat?'active':''}">Tout</a>
+      ${cats.map(c=>`<a href="/catalogue?cat=${c}${sort?'&sort='+sort:''}" class="filter-btn ${cat===c?'active':''}">${c}</a>`).join('')}
+      <select onchange="location.href='/catalogue?'+(new URLSearchParams({...Object.fromEntries(new URLSearchParams(location.search)),sort:this.value})).toString()" style="padding:.38rem .8rem;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:var(--ink3);color:var(--cream);font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;margin-left:.5rem;outline:none">
+        <option value="" ${!sort?'selected':''}>Tri par défaut</option>
+        <option value="price_asc" ${sort==='price_asc'?'selected':''}>Prix croissant</option>
+        <option value="price_desc" ${sort==='price_desc'?'selected':''}>Prix décroissant</option>
+        <option value="newest" ${sort==='newest'?'selected':''}>Nouveautés</option>
+      </select>
+      <form class="search-box" method="GET" action="/catalogue">
+        ${cat?`<input type="hidden" name="cat" value="${cat}">`:''}
+        ${sort?`<input type="hidden" name="sort" value="${sort}">`:''}
+        <input type="text" name="search" placeholder="Rechercher..." value="${search||''}">
+        <button type="submit" class="btn btn-primary btn-sm">🔍</button>
+      </form>
+    </div>
+    <section class="section"><div class="container">
+      ${flash(req)}
+      ${safeProducts.length ? `<div class="products-grid">${safeProducts.map(p=>{
+        const inWl=wl.includes(p.id);
+        return `<div class="product-card">
+          <div class="product-img">
+            <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <span style="display:none;font-size:3.5rem;width:100%;height:100%;align-items:center;justify-content:center;background:var(--ink3)">${catEmoji(p.category)}</span>
+            ${p.featured?'<span class="product-badge">✦ Top</span>':''}
+          </div>
+          <div class="product-body">
+            <div class="product-cat">${p.category}</div>
+            <div class="product-name">${p.name}</div>
+            <div class="product-desc">${(p.description||'').substring(0,75)}${(p.description||'').length>75?'…':''}</div>
+            <div class="product-footer">
+              <span class="product-price">${Number(p.price).toFixed(2)} CHF</span>
+              <span class="product-stock ${p.stock<5?'low':''}">${p.stock>0?`${p.stock} dispo`:'Rupture'}</span>
+            </div>
+            <div style="display:flex;gap:.5rem;margin-top:.75rem">
+              <a href="/produit/${p.id}" class="btn btn-outline btn-full" style="font-size:.8rem">Voir →</a>
+              ${user?`<form method="POST" action="/wishlist/toggle" style="flex-shrink:0"><input type="hidden" name="product_id" value="${p.id}"><button type="submit" class="btn btn-ghost btn-sm" style="color:${inWl?'#e74c3c':'var(--smoke)'}">${inWl?'❤️':'🤍'}</button></form>`:''}
+            </div>
+          </div>
+        </div>`;
+      }).join('')}</div>` : `<div style="text-align:center;padding:5rem;color:var(--smoke)"><p style="font-size:3rem;margin-bottom:1rem">🎣</p><p>Aucun produit trouvé</p></div>`}
+    </div></section>`;
+  return layout('Catalogue', body, user, getCartCount(req));
+};
+
+exports.product = (req, user, p, reviews, avgRating, related, inWishlist, alertExists) => {
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
+  const reviewsHTML = safeReviews.length
+    ? safeReviews.map(r=>`<div class="review-card"><div class="review-header"><span class="review-author">${r.user_name}</span><span class="stars">${stars(r.rating)}</span></div><p style="font-size:.85rem;color:var(--smoke);margin-top:.3rem">${r.comment||''}</p><small style="color:var(--fog);font-size:.75rem">${new Date(r.created_at).toLocaleDateString('fr-FR')}</small></div>`).join('')
+    : '<p style="color:var(--smoke);font-size:.875rem">Aucun avis pour le moment.</p>';
+  const safeRelated = Array.isArray(related) ? related : [];
+  const relatedHTML = safeRelated.length ? `<section class="section" style="border-top:1px solid rgba(255,255,255,.06)"><div class="container"><h2 class="section-title" style="font-size:1.4rem;margin-bottom:1.25rem">Produits similaires</h2><div class="products-grid">${safeRelated.map(r=>productCard(r)).join('')}</div></div></section>` : '';
+  const body = `
+    <div style="background:var(--ink2);border-bottom:1px solid rgba(255,255,255,.06);padding:.75rem 2rem"><div style="max-width:1200px;margin:0 auto;font-size:.8rem;color:var(--smoke)"><a href="/" style="color:var(--smoke);text-decoration:none">Accueil</a> › <a href="/catalogue" style="color:var(--smoke);text-decoration:none">Catalogue</a> › <span style="color:var(--cream)">${p.name}</span></div></div>
+    <div class="product-detail">
+      <div class="product-detail-img">
+        <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span style="display:none;font-size:7rem;width:100%;height:100%;align-items:center;justify-content:center">${catEmoji(p.category)}</span>
+      </div>
+      <div class="product-detail-info">
+        <span class="category-tag">${p.category}</span>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--white);line-height:1.15">${p.name}</h1>
+        ${avgRating?`<div class="stars" style="font-size:1.1rem">${stars(Math.round(avgRating))} <span style="color:var(--smoke);font-size:.85rem">${avgRating}/5 · ${safeReviews.length} avis</span></div>`:''}
+        <div class="detail-price">${Number(p.price).toFixed(2)} CHF</div>
+        <p class="detail-desc">${p.description||''}</p>
+        <p style="color:${p.stock>5?'#2ecc71':p.stock>0?'#e67e22':'#e74c3c'};font-weight:600;font-size:.875rem">${p.stock>0?`✓ En stock — ${p.stock} disponibles`:'✗ Rupture de stock'}</p>
+        ${p.stock>0?`<form action="/panier/ajouter" method="POST"><input type="hidden" name="product_id" value="${p.id}"><div style="margin-bottom:1rem"><label style="display:block;font-size:.72rem;color:var(--smoke);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700">Quantité</label><div class="qty-control"><button type="button" class="qty-btn" onclick="const i=this.nextElementSibling;i.value=Math.max(1,+i.value-1)">−</button><input type="number" name="qty" value="1" min="1" max="${p.stock}" class="qty-input"><button type="button" class="qty-btn" onclick="const i=this.previousElementSibling;i.value=Math.min(${p.stock},+i.value+1)">+</button></div></div><button type="submit" class="btn btn-primary btn-full" style="padding:.9rem">Ajouter au panier →</button></form>`
+        :`${!alertExists&&user?`<form method="POST" action="/alerte-stock"><input type="hidden" name="product_id" value="${p.id}"><button type="submit" class="btn btn-outline btn-full">🔔 M'alerter quand disponible</button></form>`:alertExists?`<p style="color:#2ecc71;font-size:.875rem;font-weight:600">✓ Alerte activée</p>`:''}`}
+        ${user?`<form method="POST" action="/wishlist/toggle" style="margin-top:.75rem"><input type="hidden" name="product_id" value="${p.id}"><button type="submit" class="btn btn-ghost btn-full" style="font-size:.85rem">${inWishlist?'❤️ Retirer de la wishlist':'🤍 Ajouter à la wishlist'}</button></form>`:''}
+        <a href="/catalogue" style="color:var(--smoke);font-size:.8rem;text-decoration:none;display:inline-block;margin-top:.75rem">← Retour au catalogue</a>
+      </div>
+    </div>
+    <section class="section" style="background:var(--ink2);border-top:1px solid rgba(255,255,255,.06)"><div class="container" style="max-width:900px">
+      <h2 class="section-title" style="font-size:1.5rem;margin-bottom:1.5rem">Avis clients</h2>
+      <div style="margin-bottom:2rem">${reviewsHTML}</div>
+      ${user?`<div style="background:var(--ink3);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:1.5rem">${flash(req)}<form method="POST" action="/produit/${p.id}/avis"><div class="form-group"><label>Note</label><select name="rating">${[5,4,3,2,1].map(n=>`<option value="${n}">${stars(n)} (${n}/5)</option>`).join('')}</select></div><div class="form-group"><label>Commentaire</label><textarea name="comment" placeholder="Ton avis..."></textarea></div><button type="submit" class="btn btn-primary">Envoyer</button></form></div>`:`<div style="text-align:center;padding:1.5rem"><a href="/login" class="btn btn-outline">Connecte-toi pour laisser un avis</a></div>`}
+    </div></section>
+    ${relatedHTML}`;
+  return layout(p.name, body, user, getCartCount(req));
+};
+
+exports.panier = (req, user, items) => {
+  const safeItems = Array.isArray(items) ? items : [];
+  const subtotal = safeItems.reduce((s,i)=>s+i.price*i.qty,0);
+  const promo = req.session.promo||null;
+  let discount=0;
+  if(promo){discount=promo.type==='percent'?subtotal*promo.value/100:promo.value;discount=Math.min(discount,subtotal);}
+  const total=subtotal-discount;
+  const body=safeItems.length?`<div class="cart-layout"><div><h2 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--white);margin-bottom:1.25rem">Mon panier <span style="color:var(--smoke);font-size:1rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:400">(${safeItems.reduce((s,i)=>s+i.qty,0)} articles)</span></h2>${flash(req)}<div class="cart-items">${safeItems.map(i=>`<div class="cart-item"><div class="cart-item-img"><img src="${i.image}" alt="${i.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="display:none;font-size:2rem;width:100%;height:100%;align-items:center;justify-content:center">${catEmoji(i.category)}</span></div><div class="cart-item-info"><h4>${i.name}</h4><p>${Number(i.price).toFixed(2)} CHF / unité</p></div><form action="/panier/update" method="POST" style="display:flex;align-items:center;gap:.4rem"><input type="hidden" name="product_id" value="${i.id}"><input type="number" name="qty" value="${i.qty}" min="1" max="99" style="width:55px;padding:.3rem;border:1px solid rgba(255,255,255,.09);border-radius:8px;text-align:center;background:var(--ink3);color:var(--cream);font-size:.85rem"><button type="submit" class="btn btn-ghost btn-sm">✓</button></form><div class="cart-item-price">${(i.price*i.qty).toFixed(2)} CHF</div><form action="/panier/supprimer" method="POST"><input type="hidden" name="product_id" value="${i.id}"><button type="submit" class="btn btn-danger btn-sm">✕</button></form></div>`).join('')}</div></div><div class="cart-summary"><h3>Résumé</h3><div class="summary-line"><span>Sous-total</span><span>${subtotal.toFixed(2)} CHF</span></div>${discount>0?`<div class="summary-line" style="color:var(--amber2)"><span>Réduction (${promo.code})</span><span>-${discount.toFixed(2)} CHF</span></div>`:''}<div class="summary-line"><span>Livraison</span><span style="color:#2ecc71">Gratuite</span></div><div class="summary-total"><span>Total</span><span>${total.toFixed(2)} CHF</span></div><div class="promo-box">${promo?`<div class="promo-applied"><span>🎟 ${promo.code} appliqué !</span><form method="POST" action="/panier/promo/supprimer" style="margin:0"><button type="submit" style="background:none;border:none;cursor:pointer;color:#e74c3c;font-weight:700;font-size:1rem">×</button></form></div>`:`<form method="POST" action="/panier/promo"><input type="text" name="code" placeholder="Code promo..."><button type="submit" class="btn btn-outline btn-sm btn-full">Appliquer</button></form>`}</div><a href="/checkout" class="btn btn-primary btn-full" style="margin-top:1rem;padding:1rem;font-size:.95rem">Payer maintenant 🔒</a><p style="text-align:center;font-size:.72rem;color:var(--smoke);margin-top:.6rem">Paiement sécurisé · Stripe</p></div></div>`:`<div class="cart-empty"><div style="font-size:4rem;margin-bottom:1rem;opacity:.25">🛒</div><h2 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--white);margin-bottom:.5rem">Panier vide</h2><p style="color:var(--smoke);margin-bottom:1.75rem;font-size:.9rem">Tu n'as rien dans ton panier pour l'instant</p><a href="/catalogue" class="btn btn-primary">Explorer le catalogue →</a></div>`;
+  return layout('Panier',`<div style="padding:2rem 2rem 0">${flash(req)}</div>${body}`,user,getCartCount(req));
+};
+
+exports.login=(req)=>layout('Connexion',`<div class="auth-page"><div class="auth-bg"></div><div class="auth-box"><a href="/" style="color:var(--smoke);font-size:.8rem;text-decoration:none;display:block;margin-bottom:1.5rem">← Retour</a><h1>Content de te revoir</h1><p>Connecte-toi à ton compte PêchePro</p>${flash(req)}<form method="POST" action="/login"><div class="form-group"><label>Email</label><input type="email" name="email" required placeholder="toi@exemple.com"></div><div class="form-group"><label>Mot de passe</label><input type="password" name="password" required placeholder="••••••••"></div><button type="submit" class="btn btn-primary btn-full" style="padding:1rem;margin-top:.5rem">Se connecter →</button></form><div class="form-link">Pas encore de compte ? <a href="/register">S'inscrire</a></div><div class="form-link" style="margin-top:.5rem"><a href="/forgot-password" style="color:var(--fog);font-size:.8rem">Mot de passe oublié ?</a></div></div></div>`);
+
+exports.register=(req)=>layout('Inscription',`<div class="auth-page"><div class="auth-bg"></div><div class="auth-box"><a href="/" style="color:var(--smoke);font-size:.8rem;text-decoration:none;display:block;margin-bottom:1.5rem">← Retour</a><h1>Rejoins PêchePro 🎣</h1><p>Crée ton compte et accède à tout le matériel</p>${flash(req)}<form method="POST" action="/register"><div class="form-group"><label>Prénom & nom</label><input type="text" name="name" required placeholder="Jean Dupont"></div><div class="form-group"><label>Email</label><input type="email" name="email" required placeholder="toi@exemple.com"></div><div class="form-group"><label>Mot de passe</label><input type="password" name="password" required placeholder="Min. 6 caractères" minlength="6"></div><div class="form-group"><label>Code de parrainage (optionnel)</label><input type="text" name="referral" placeholder="PECHEXXXX"></div><div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem"><input type="checkbox" name="newsletter" id="nl" style="accent-color:var(--amber)"><label for="nl" style="font-size:.85rem;color:var(--smoke);text-transform:none;letter-spacing:0">S'inscrire à la newsletter</label></div><button type="submit" class="btn btn-primary btn-full" style="padding:1rem;margin-top:.5rem">Créer mon compte →</button></form><div class="form-link">Déjà un compte ? <a href="/login">Se connecter</a></div></div></div>`);
+
+exports.compte = (req, user, orders, tickets, addresses, wishlistCount) => {
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const safeTickets = Array.isArray(tickets) ? tickets : [];
+  const safeAddresses = Array.isArray(addresses) ? addresses : [];
+  const totalDepense = safeOrders.reduce((s,o)=>s+o.total,0);
+  const ticketsOuverts = safeTickets.filter(t=>t.status==='ouvert').length;
+  return layout('Mon compte',`<section class="section"><div class="container" style="max-width:860px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem"><div><h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--white)">Salut ${user.name.split(' ')[0]} 👋</h1><p style="color:var(--smoke);font-size:.875rem;margin-top:.2rem">${user.email}</p></div><a href="/logout" class="btn btn-outline btn-sm">Déconnexion</a></div>${flash(req)}<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem"><div style="background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:1.25rem;text-align:center"><p style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--amber2)">${safeOrders.length}</p><p style="color:var(--smoke);font-size:.8rem;margin-top:.2rem">Commandes</p></div><div style="background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:1.25rem;text-align:center"><p style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--amber2)">${totalDepense.toFixed(0)} CHF</p><p style="color:var(--smoke);font-size:.8rem;margin-top:.2rem">Total dépensé</p></div><div style="background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:1.25rem;text-align:center"><p style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--amber2)">${user.points||0}</p><p style="color:var(--smoke);font-size:.8rem;margin-top:.2rem">Points fidélité</p></div><div style="background:var(--ink2);border:1px solid ${ticketsOuverts>0?'rgba(192,57,43,.4)':'rgba(255,255,255,.06)'};border-radius:14px;padding:1.25rem;text-align:center"><p style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:${ticketsOuverts>0?'#e74c3c':'var(--amber2)'}">${ticketsOuverts}</p><p style="color:var(--smoke);font-size:.8rem;margin-top:.2rem">Tickets ouverts</p></div></div><div style="background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;margin-bottom:1rem"><div style="padding:1rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center"><h3 style="font-weight:600;font-size:.9rem;color:var(--white)">📦 Mes commandes</h3><a href="/catalogue" class="btn btn-primary btn-sm">+ Commander</a></div>${safeOrders.length?`<table><tr><th>#</th><th>Date</th><th>Total</th><th>Statut</th><th>Actions</th></tr>${safeOrders.map(o=>`<tr><td><strong>#${o.id}</strong></td><td>${new Date(o.created_at).toLocaleDateString('fr-FR')}</td><td><strong style="color:var(--amber2)">${Number(o.total).toFixed(2)} CHF</strong></td><td><span class="badge badge-${o.status==='payé'?'paid':o.status==='expédié'?'shipped':o.status==='annulé'?'cancelled':'pending'}">${o.status}</span></td><td style="display:flex;gap:.4rem"><a href="/facture/${o.id}" class="btn btn-outline btn-sm" target="_blank">📄</a><a href="/commande/${o.id}" class="btn btn-ghost btn-sm">🚚</a></td></tr>`).join('')}</table>`:`<div style="padding:2rem;text-align:center;color:var(--smoke);font-size:.875rem">Aucune commande — <a href="/catalogue" style="color:var(--amber2)">explorer le catalogue</a></div>`}</div><div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap"><a href="/wishlist" class="btn btn-outline">❤️ Wishlist${wishlistCount>0?` (${wishlistCount})`:''}</a><a href="/tickets" class="btn btn-outline">💬 Support</a><a href="/parrainage" class="btn btn-outline">🎁 Parrainage</a></div></div></section>`,user,getCartCount(req));
+};
+
+exports.checkout = (req, user, items, promo, discount, total, addresses, userData, pointsDiscount) => {
+  const safeItems = Array.isArray(items) ? items : [];
+  const subtotal = safeItems.reduce((s,i)=>s+i.price*i.qty,0);
+  const pd = pointsDiscount||0;
+  return layout('Finaliser la commande',`<section class="section"><div class="container" style="max-width:960px"><h1 style="font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:var(--white);margin-bottom:2rem">🚚 Finaliser la commande</h1>${flash(req)}<form method="POST" action="/checkout"><div style="display:grid;grid-template-columns:1fr 360px;gap:1.5rem"><div><div class="admin-card" style="margin-bottom:1.25rem"><div class="admin-card-header"><h3>📦 Informations de livraison</h3></div><div style="padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem"><div class="form-group"><label>Prénom *</label><input name="firstname" required placeholder="Jean" value="${user.name.split(' ')[0]||''}"></div><div class="form-group"><label>Nom *</label><input name="lastname" required placeholder="Dupont" value="${user.name.split(' ').slice(1).join(' ')||''}"></div><div class="form-group" style="grid-column:1/-1"><label>Email *</label><input type="email" name="email" required value="${user.email}"></div><div class="form-group" style="grid-column:1/-1"><label>Téléphone *</label><input type="tel" name="phone" required placeholder="06 12 34 56 78"></div><div class="form-group" style="grid-column:1/-1"><label>Adresse *</label><input name="address" required placeholder="12 rue de la Pêche"></div><div class="form-group"><label>Code postal *</label><input name="zip" required placeholder="1200" maxlength="10"></div><div class="form-group"><label>Ville *</label><input name="city" required placeholder="Genève"></div><div class="form-group" style="grid-column:1/-1"><label>Pays</label><select name="country"><option value="Suisse" selected>Suisse 🇨🇭</option><option value="France">France 🇫🇷</option><option value="Belgique">Belgique 🇧🇪</option></select></div></div></div><button type="submit" class="btn btn-primary btn-full" style="padding:1rem;font-size:1rem">Payer maintenant 🔒</button><p style="text-align:center;font-size:.72rem;color:var(--smoke);margin-top:.5rem">Paiement sécurisé · Stripe</p></div><div><div style="background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:1.25rem;position:sticky;top:80px"><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:1.25rem">Résumé</h3>${safeItems.map(i=>`<div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05)"><div style="width:40px;height:40px;border-radius:8px;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">${catEmoji(i.category)}</div><div style="flex:1"><p style="font-size:.8rem;font-weight:600;color:var(--white)">${i.name}</p><p style="font-size:.75rem;color:var(--smoke)">x${i.qty}</p></div><span style="font-size:.85rem;font-weight:700;color:var(--amber2)">${(i.price*i.qty).toFixed(2)} CHF</span></div>`).join('')}<div style="margin-top:1rem"><div style="display:flex;justify-content:space-between;font-size:.85rem;color:var(--smoke);margin-bottom:.4rem"><span>Sous-total</span><span>${subtotal.toFixed(2)} CHF</span></div>${discount>0?`<div style="display:flex;justify-content:space-between;font-size:.85rem;color:var(--amber2);margin-bottom:.4rem"><span>Réduction</span><span>-${Number(discount).toFixed(2)} CHF</span></div>`:''}<div style="display:flex;justify-content:space-between;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.07);margin-top:.5rem;font-weight:700;font-size:1.1rem;color:var(--white)"><span>Total</span><span style="color:var(--amber2)">${Number(total).toFixed(2)} CHF</span></div></div></div></div></div></form></div></section>`,user,getCartCount(req));
+};
+
+exports.success = (req, user, order, items) => {
+  const safeItems = Array.isArray(items) ? items : [];
+  return `<div class="success-page"><div class="success-box"><div class="success-icon">🎣</div><h1>Commande confirmée !</h1><p>Merci <strong>${order.name.split(' ')[0]}</strong> ! Ta commande <strong>#${order.id}</strong> a bien été reçue.</p><div class="order-details">${safeItems.map(i=>`<div class="order-line"><span>${i.name} ×${i.quantity}</span><strong>${(i.price*i.quantity).toFixed(2)} CHF</strong></div>`).join('')}<div style="display:flex;justify-content:space-between;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.07);margin-top:.5rem;font-weight:700;font-size:1rem;color:var(--white)"><span>Total payé</span><span style="color:var(--amber2)">${Number(order.total).toFixed(2)} CHF</span></div></div><a href="/compte" class="btn btn-primary btn-full" style="margin-bottom:.75rem">Voir ma commande</a><a href="/" class="btn btn-outline btn-full">Retour à l'accueil</a></div></div>`;
+};
+
+exports.forgotPassword=(req)=>layout('Mot de passe oublié',`<div class="auth-page"><div class="auth-bg"></div><div class="auth-box"><a href="/login" style="color:var(--smoke);font-size:.8rem;text-decoration:none;display:block;margin-bottom:1.5rem">← Retour</a><h1>Mot de passe oublié</h1><p>Entre ton email et ton nom pour vérifier ton identité.</p>${flash(req)}<form method="POST" action="/forgot-password"><div class="form-group"><label>Email du compte</label><input type="email" name="email" required placeholder="toi@exemple.com"></div><div class="form-group"><label>Ton nom complet</label><input type="text" name="name_confirm" required placeholder="Jean Dupont"></div><div class="form-group"><label>Nouveau mot de passe</label><input type="password" name="new_password" required placeholder="Min. 6 caractères" minlength="6"></div><div class="form-group"><label>Confirmer</label><input type="password" name="confirm_password" required placeholder="••••••••"></div><button type="submit" class="btn btn-primary btn-full" style="padding:1rem;margin-top:.5rem">Changer le mot de passe →</button></form><div class="form-link"><a href="/login">Se connecter</a> · <a href="/register">Créer un compte</a></div></div></div>`);
+
+exports.adminLogin=(error)=>`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Admin</title>${CSS}</head><body><div class="auth-page"><div class="auth-bg"></div><div class="auth-box"><div style="text-align:center;margin-bottom:1.75rem"><div style="font-size:2.5rem;margin-bottom:.5rem">⚙️</div><h1 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700">Admin PêchePro</h1><p style="color:var(--smoke);font-size:.875rem;margin-top:.3rem">Accès réservé</p></div>${error?`<div class="flash flash-error">${error}</div>`:''}<form method="POST" action="/admin/login"><div class="form-group"><label>Email</label><input type="email" name="email" required placeholder="admin@admin.com"></div><div class="form-group"><label>Mot de passe</label><input type="password" name="password" required placeholder="••••••••"></div><button type="submit" class="btn btn-primary btn-full" style="padding:1rem;margin-top:.5rem">Accéder →</button></form></div></div></body></html>`;
+
+exports.adminDashboard=(stats,recentOrders,topProducts,topClients,revenueByCategory)=>{
+  const safeOrders=Array.isArray(recentOrders)?recentOrders:[];
+  const safeTop=Array.isArray(topProducts)?topProducts:[];
+  const safeClients=Array.isArray(topClients)?topClients:[];
+  const chartData=JSON.stringify(stats.revenueByDay||[]);
+  const catData=JSON.stringify(Array.isArray(revenueByCategory)?revenueByCategory:[]);
+  const content=`<div class="stats-grid"><div class="stat-card"><div class="stat-icon">📦</div><div class="stat-value">${stats.totalOrders||0}</div><div class="stat-label">Commandes</div><div class="stat-accent"></div></div><div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value">${Number(stats.totalRevenue||0).toFixed(0)} CHF</div><div class="stat-label">Chiffre d'affaires</div><div class="stat-accent"></div></div><div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value">${stats.totalUsers||0}</div><div class="stat-label">Utilisateurs</div><div class="stat-accent"></div></div><div class="stat-card"><div class="stat-icon">🛒</div><div class="stat-value">${stats.totalProducts||0}</div><div class="stat-label">Produits</div><div class="stat-accent"></div></div><div class="stat-card"><div class="stat-icon">💬</div><div class="stat-value">${stats.openTickets||0}</div><div class="stat-label">Tickets ouverts</div><div class="stat-accent"></div></div></div><div style="display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;margin-bottom:1.25rem"><div class="admin-card"><div class="admin-card-header"><h3>📈 Revenus — 7 jours</h3></div><div style="padding:1.25rem"><canvas id="revenueChart" height="90"></canvas></div></div><div class="admin-card"><div class="admin-card-header"><h3>🍩 CA par catégorie</h3></div><div style="padding:1.25rem"><canvas id="catChart" height="180"></canvas></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem"><div class="admin-card"><div class="admin-card-header"><h3>🏆 Top produits</h3><a href="/admin/produits" class="btn btn-outline btn-sm">Gérer</a></div><div style="padding:.5rem 0">${safeTop.map((p,i)=>`<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.04)"><span style="font-weight:800;color:var(--fog);font-size:.75rem;width:18px">${i+1}</span><span style="flex:1;font-size:.85rem;color:var(--cream)">${p.name}</span><span style="font-weight:700;color:var(--amber2);font-size:.8rem">${p.total_sold||0} ventes</span></div>`).join('')}</div></div><div class="admin-card"><div class="admin-card-header"><h3>👑 Meilleurs clients</h3><a href="/admin/utilisateurs" class="btn btn-outline btn-sm">Voir tous</a></div><div style="padding:.5rem 0">${safeClients.map((c,i)=>`<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.04)"><span style="font-weight:800;color:var(--fog);font-size:.75rem;width:18px">${i+1}</span><div style="flex:1"><p style="font-size:.85rem;color:var(--cream)">${c.name}</p><p style="font-size:.72rem;color:var(--smoke)">${c.nb_orders} commande${c.nb_orders>1?'s':''}</p></div><span style="font-weight:700;color:var(--amber2);font-size:.8rem">${Number(c.total_spent||0).toFixed(0)} CHF</span></div>`).join('')}</div></div></div><div class="admin-card"><div class="admin-card-header"><h3>📋 Commandes récentes</h3><a href="/admin/commandes" class="btn btn-outline btn-sm">Voir tout</a></div><table><tr><th>#</th><th>Client</th><th>Total</th><th>Statut</th><th>Date</th><th></th></tr>${safeOrders.map(o=>`<tr><td><strong>#${o.id}</strong></td><td><strong>${o.name}</strong><br><span style="font-size:.75rem">${o.email}</span></td><td><strong style="color:var(--amber2)">${Number(o.total).toFixed(2)} CHF</strong></td><td><span class="badge badge-${o.status==='payé'?'paid':o.status==='expédié'?'shipped':o.status==='annulé'?'cancelled':'pending'}">${o.status}</span></td><td>${new Date(o.created_at).toLocaleDateString('fr-FR')}</td><td><a href="/admin/commandes/${o.id}" class="btn btn-outline btn-sm">→</a></td></tr>`).join('')}</table></div><script>Chart.defaults.color='#8fa3bc';Chart.defaults.borderColor='rgba(255,255,255,.06)';const raw=${chartData};new Chart(document.getElementById('revenueChart').getContext('2d'),{type:'line',data:{labels:raw.map(d=>d.date),datasets:[{data:raw.map(d=>d.total),borderColor:'#e5a83a',backgroundColor:'rgba(200,132,30,0.08)',borderWidth:2,fill:true,tension:0.4,pointBackgroundColor:'#e5a83a',pointRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}}}});const cats=${catData};if(cats.length)new Chart(document.getElementById('catChart').getContext('2d'),{type:'doughnut',data:{labels:cats.map(c=>c.category),datasets:[{data:cats.map(c=>c.revenue),backgroundColor:['#c8841e','#e5a83a','#3498db','#2ecc71'],borderWidth:0}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:11},color:'#8fa3bc'}}},cutout:'65%'}});<\/script>`;
+  return adminLayout('Dashboard',content,'dashboard');
+};
+
+exports.adminCommandes=(orders,flash_msg,activeStatus)=>{const safeOrders=Array.isArray(orders)?orders:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div style="display:flex;gap:.4rem;margin-bottom:1.25rem;flex-wrap:wrap"><a href="/admin/commandes" class="filter-btn ${!activeStatus?'active':''}">Toutes</a>${['en_attente','payé','expédié','annulé'].map(s=>`<a href="/admin/commandes?status=${s}" class="filter-btn ${activeStatus===s?'active':''}">${s}</a>`).join('')}</div><div class="admin-card"><div class="admin-card-header"><h3>📦 Commandes</h3><span style="color:var(--smoke);font-size:.8rem">${safeOrders.length} résultats</span></div><table><tr><th>#</th><th>Client</th><th>Total</th><th>Statut</th><th>Date</th><th></th></tr>${safeOrders.map(o=>`<tr><td><strong>#${o.id}</strong></td><td><strong>${o.name}</strong><br><span style="font-size:.75rem">${o.email}</span></td><td><strong style="color:var(--amber2)">${Number(o.total).toFixed(2)} CHF</strong></td><td><span class="badge badge-${o.status==='payé'?'paid':o.status==='expédié'?'shipped':o.status==='annulé'?'cancelled':'pending'}">${o.status}</span></td><td style="font-size:.8rem">${new Date(o.created_at).toLocaleDateString('fr-FR')}</td><td><a href="/admin/commandes/${o.id}" class="btn btn-outline btn-sm">Détails</a></td></tr>`).join('')}</table></div>`;return adminLayout('Commandes',content,'commandes');};
+
+exports.adminCommande=(order,items,flash_msg)=>{const safeItems=Array.isArray(items)?items:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem"><div class="admin-card"><div class="admin-card-header"><h3>👤 Client</h3></div><div style="padding:1.25rem;display:flex;flex-direction:column;gap:.6rem"><div style="display:flex;justify-content:space-between"><span style="color:var(--smoke);font-size:.85rem">Nom</span><strong>${order.name}</strong></div><div style="display:flex;justify-content:space-between"><span style="color:var(--smoke);font-size:.85rem">Email</span><strong>${order.email}</strong></div><div style="display:flex;justify-content:space-between"><span style="color:var(--smoke);font-size:.85rem">Date</span><strong>${new Date(order.created_at).toLocaleString('fr-FR')}</strong></div>${order.promo_code?`<div style="display:flex;justify-content:space-between"><span style="color:var(--smoke);font-size:.85rem">Code promo</span><span class="badge badge-paid">${order.promo_code}</span></div>`:''}</div></div><div class="admin-card"><div class="admin-card-header"><h3>⚡ Changer le statut</h3></div><div style="padding:1.25rem"><form method="POST" action="/admin/commandes/${order.id}/statut"><div class="form-group"><label>Statut</label><select name="status">${['en_attente','payé','expédié','annulé'].map(s=>`<option value="${s}" ${order.status===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="form-group"><label>Numéro de suivi</label><input name="tracking_number" value="${order.tracking_number||''}" placeholder="Ex: 1Z999AA10123456784"></div><div class="form-group"><label>Notes internes</label><textarea name="notes" rows="3">${order.notes||''}</textarea></div><button type="submit" class="btn btn-primary">Mettre à jour</button></form></div></div></div><div class="admin-card"><div class="admin-card-header"><h3>🛒 Articles</h3><strong style="color:var(--amber2)">${Number(order.total).toFixed(2)} CHF</strong></div><table><tr><th>Produit</th><th>Prix unit.</th><th>Quantité</th><th>Sous-total</th></tr>${safeItems.map(i=>`<tr><td><strong>${i.name}</strong></td><td>${Number(i.price).toFixed(2)} CHF</td><td>${i.quantity}</td><td><strong style="color:var(--amber2)">${(i.price*i.quantity).toFixed(2)} CHF</strong></td></tr>`).join('')}</table></div><div style="display:flex;gap:.75rem;margin-top:.5rem"><a href="/admin/commandes" class="btn btn-outline">← Retour</a><a href="/facture/${order.id}" class="btn btn-primary" target="_blank">📄 Facture</a></div>`;return adminLayout(`Commande #${order.id}`,content,'commandes');};
+
+exports.adminProduits=(products,flash_msg)=>{const safe=Array.isArray(products)?products:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div style="display:flex;justify-content:flex-end;margin-bottom:1rem"><a href="/admin/produits/nouveau" class="btn btn-primary">+ Nouveau produit</a></div><div class="admin-card"><div class="admin-card-header"><h3>🛒 Produits</h3><span style="color:var(--smoke);font-size:.8rem">${safe.length} produits</span></div><table><tr><th>Produit</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Statut</th><th></th></tr>${safe.map(p=>`<tr><td><strong>${p.name}</strong></td><td><span style="font-size:.75rem;color:var(--amber)">${p.category}</span></td><td><strong style="color:var(--amber2)">${Number(p.price).toFixed(2)} CHF</strong></td><td><span style="color:${p.stock<5?'#e74c3c':p.stock<10?'#e67e22':'#2ecc71'}"><strong>${p.stock}</strong></span></td><td><span class="badge badge-${p.active===0||p.active==='0'?'inactive':'active'}">${p.active===0||p.active==='0'?'Désactivé':'Actif'}</span>${p.featured?'<span class="badge badge-paid" style="margin-left:.25rem">✦</span>':''}</td><td style="display:flex;gap:.4rem"><a href="/admin/produits/${p.id}/edit" class="btn btn-outline btn-sm">✏️</a><form method="POST" action="/admin/produits/${p.id}/toggle" style="display:inline"><button type="submit" class="btn btn-sm" style="background:${p.active===0?'rgba(31,163,92,.1)':'rgba(192,57,43,.1)'};color:${p.active===0?'#2ecc71':'#e74c3c'};border:1px solid ${p.active===0?'rgba(31,163,92,.2)':'rgba(192,57,43,.2)'}">${p.active===0?'Activer':'Désactiver'}</button></form><form method="POST" action="/admin/produits/${p.id}/supprimer" onsubmit="return confirm('Supprimer ?')"><button type="submit" class="btn btn-danger btn-sm">🗑</button></form></td></tr>`).join('')}</table></div>`;return adminLayout('Produits',content,'produits');};
+
+exports.adminProduitForm=(product,flash_msg)=>{const isEdit=!!product;const cats=['Cannes','Moulinets','Leurres','Accessoires'];const content=`${flash_msg?`<div class="flash flash-error">${flash_msg}</div>`:''}<div class="admin-card" style="max-width:680px"><div class="admin-card-header"><h3>${isEdit?'✏️ Modifier':'➕ Nouveau'} produit</h3></div><div style="padding:1.5rem"><form method="POST" action="${isEdit?`/admin/produits/${product.id}/edit`:'/admin/produits/nouveau'}" enctype="multipart/form-data"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem"><div class="form-group" style="grid-column:1/-1"><label>Nom *</label><input name="name" required value="${isEdit?product.name:''}"></div><div class="form-group"><label>Catégorie *</label><select name="category">${cats.map(c=>`<option value="${c}" ${isEdit&&product.category===c?'selected':''}>${c}</option>`).join('')}</select></div><div class="form-group"><label>Prix (CHF) *</label><input type="number" name="price" step="0.01" min="0" required value="${isEdit?product.price:''}"></div><div class="form-group"><label>Stock *</label><input type="number" name="stock" min="0" required value="${isEdit?product.stock:'0'}"></div><div class="form-group"><label>Vedette ?</label><select name="featured"><option value="0" ${isEdit&&!product.featured?'selected':''}>Non</option><option value="1" ${isEdit&&product.featured?'selected':''}>Oui ✦</option></select></div><div class="form-group"><label>Statut</label><select name="active"><option value="1" ${!isEdit||product.active?'selected':''}>Actif</option><option value="0" ${isEdit&&!product.active?'selected':''}>Inactif</option></select></div><div class="form-group" style="grid-column:1/-1"><label>Description</label><textarea name="description">${isEdit?(product.description||''):''}</textarea></div><div class="form-group" style="grid-column:1/-1"><label>URL de l'image</label><input name="image_url" placeholder="https://..." value="${isEdit&&product.image?product.image:''}"></div><div class="form-group" style="grid-column:1/-1"><label>Uploader une image</label><input type="file" name="image" accept="image/*" style="color:var(--cream)"></div></div><div style="display:flex;gap:.75rem;margin-top:1rem"><button type="submit" class="btn btn-primary">${isEdit?'Enregistrer':'Créer le produit'}</button><a href="/admin/produits" class="btn btn-outline">Annuler</a></div></form></div></div>`;return adminLayout(isEdit?'Modifier produit':'Nouveau produit',content,isEdit?'produits':'nouveau');};
+
+exports.adminUtilisateurs=(users,flash_msg)=>{const safe=Array.isArray(users)?users:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div class="admin-card"><div class="admin-card-header"><h3>👥 Utilisateurs</h3><span style="color:var(--smoke);font-size:.8rem">${safe.length} comptes</span></div><table><tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Points</th><th>Inscrit le</th><th></th></tr>${safe.map(u=>`<tr><td><strong>${u.name}</strong></td><td style="font-size:.82rem">${u.email}</td><td><span class="badge badge-${u.role==='admin'?'admin':'user'}">${u.role}</span></td><td style="color:var(--amber2);font-weight:600">${u.points||0}</td><td style="font-size:.8rem">${new Date(u.created_at).toLocaleDateString('fr-FR')}</td><td style="display:flex;gap:.4rem">${u.role!=='admin'?`<form method="POST" action="/admin/utilisateurs/${u.id}/promote"><button type="submit" class="btn btn-outline btn-sm">→ Admin</button></form>`:''}<form method="POST" action="/admin/utilisateurs/${u.id}/supprimer" onsubmit="return confirm('Supprimer ?')"><button type="submit" class="btn btn-danger btn-sm">🗑</button></form></td></tr>`).join('')}</table></div>`;return adminLayout('Utilisateurs',content,'users');};
+
+exports.adminTickets=(tickets,flash_msg)=>{const safe=Array.isArray(tickets)?tickets:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div class="admin-card"><div class="admin-card-header"><h3>💬 Tickets support</h3></div><table><tr><th>#</th><th>Client</th><th>Sujet</th><th>Statut</th><th>Date</th><th></th></tr>${safe.map(t=>`<tr><td><strong>#${t.id}</strong></td><td><strong>${t.user_name}</strong></td><td>${t.subject}</td><td><span class="badge badge-${t.status==='ouvert'?'open':'active'}">${t.status}</span></td><td style="font-size:.8rem">${new Date(t.created_at).toLocaleDateString('fr-FR')}</td><td><a href="/admin/tickets/${t.id}" class="btn btn-outline btn-sm">Répondre</a></td></tr>`).join('')}</table></div>`;return adminLayout('Tickets',content,'tickets');};
+
+exports.adminTicket=(ticket,flash_msg)=>{const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem"><div class="admin-card"><div class="admin-card-header"><h3>📩 Message</h3></div><div style="padding:1.25rem"><p style="color:var(--smoke);font-size:.8rem;margin-bottom:.3rem"><strong style="color:var(--cream)">${ticket.user_name}</strong> — ${ticket.user_email}</p><p style="font-weight:600;color:var(--white);margin-bottom:.75rem">${ticket.subject}</p><div style="background:var(--ink3);border-radius:10px;padding:1rem;font-size:.875rem;color:var(--cream);line-height:1.7">${ticket.message}</div>${ticket.admin_reply?`<div style="margin-top:1rem;background:rgba(200,132,30,.08);border:1px solid rgba(200,132,30,.2);border-radius:10px;padding:1rem"><p style="font-size:.72rem;color:var(--amber);font-weight:700;margin-bottom:.5rem">RÉPONSE ADMIN</p><p style="font-size:.875rem;color:var(--cream)">${ticket.admin_reply}</p></div>`:''}</div></div><div class="admin-card"><div class="admin-card-header"><h3>✏️ Répondre</h3></div><div style="padding:1.25rem"><form method="POST" action="/admin/tickets/${ticket.id}/repondre"><div class="form-group"><label>Réponse</label><textarea name="reply" rows="6">${ticket.admin_reply||''}</textarea></div><div class="form-group"><label>Statut</label><select name="status"><option value="ouvert" ${ticket.status==='ouvert'?'selected':''}>Ouvert</option><option value="fermé" ${ticket.status==='fermé'?'selected':''}>Fermé</option></select></div><button type="submit" class="btn btn-primary">Envoyer</button></form></div></div></div><div style="margin-top:.75rem"><a href="/admin/tickets" class="btn btn-outline">← Retour</a></div>`;return adminLayout(`Ticket #${ticket.id}`,content,'tickets');};
+
+exports.adminAvis=(reviews,flash_msg)=>{const safe=Array.isArray(reviews)?reviews:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div class="admin-card"><div class="admin-card-header"><h3>⭐ Avis clients</h3></div><table><tr><th>Produit</th><th>Client</th><th>Note</th><th>Statut</th><th></th></tr>${safe.map(r=>`<tr><td><strong>${r.product_name||'#'+r.product_id}</strong></td><td>${r.user_name}</td><td><span style="color:var(--amber2)">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span></td><td><span class="badge badge-${r.approved?'active':'pending'}">${r.approved?'Approuvé':'En attente'}</span></td><td style="display:flex;gap:.4rem"><form method="POST" action="/admin/avis/${r.id}/approuver"><button type="submit" class="btn btn-outline btn-sm" style="color:#2ecc71;border-color:rgba(31,163,92,.3)">✓</button></form><form method="POST" action="/admin/avis/${r.id}/supprimer" onsubmit="return confirm('?')"><button type="submit" class="btn btn-danger btn-sm">🗑</button></form></td></tr>`).join('')}</table></div>`;return adminLayout('Avis clients',content,'avis');};
+
+exports.adminPromos=(promos,flash_msg)=>{const safe=Array.isArray(promos)?promos:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div class="admin-card" style="max-width:500px;margin-bottom:1.25rem"><div class="admin-card-header"><h3>➕ Créer un code promo</h3></div><div style="padding:1.25rem"><form method="POST" action="/admin/promos/creer"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem"><div class="form-group" style="grid-column:1/-1"><label>Code *</label><input name="code" required placeholder="PECHE20" style="text-transform:uppercase"></div><div class="form-group"><label>Type</label><select name="type"><option value="percent">% Pourcentage</option><option value="fixed">CHF Fixe</option></select></div><div class="form-group"><label>Valeur *</label><input type="number" name="value" step="0.01" min="0" required placeholder="20"></div><div class="form-group" style="grid-column:1/-1"><label>Utilisations (-1=illimité)</label><input type="number" name="uses_left" value="-1"></div></div><button type="submit" class="btn btn-primary">Créer</button></form></div></div><div class="admin-card"><div class="admin-card-header"><h3>🎟 Codes existants</h3></div><table><tr><th>Code</th><th>Type</th><th>Valeur</th><th>Statut</th><th></th></tr>${safe.map(p=>`<tr><td><strong style="font-family:monospace;letter-spacing:.1em">${p.code}</strong></td><td>${p.type==='percent'?'%':'CHF'}</td><td style="color:var(--amber2);font-weight:600">${p.value}${p.type==='percent'?'%':' CHF'}</td><td><span class="badge badge-${p.active?'active':'inactive'}">${p.active?'Actif':'Inactif'}</span></td><td style="display:flex;gap:.4rem"><form method="POST" action="/admin/promos/${p.id}/toggle"><button type="submit" class="btn btn-outline btn-sm">${p.active?'Désactiver':'Activer'}</button></form><form method="POST" action="/admin/promos/${p.id}/supprimer" onsubmit="return confirm('?')"><button type="submit" class="btn btn-danger btn-sm">🗑</button></form></td></tr>`).join('')}</table></div>`;return adminLayout('Codes promo',content,'promos');};
+
+exports.adminContenu=(content_items,flash_msg)=>{const c={};(Array.isArray(content_items)?content_items:[]).forEach(i=>c[i.key]=i.value);const fields=[{key:'hero_title',label:'Titre héro'},{key:'hero_subtitle',label:'Sous-titre héro'},{key:'hero_cta',label:'Bouton CTA'},{key:'about_text',label:'Texte À propos'},{key:'banner_text',label:'Texte bannière'},{key:'banner_active',label:'Bannière active (1/0)'}];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div class="admin-card" style="max-width:680px"><div class="admin-card-header"><h3>✏️ Contenu du site</h3></div><div style="padding:1.5rem"><form method="POST" action="/admin/contenu/sauvegarder">${fields.map(f=>`<div class="form-group"><label>${f.label}</label><input name="${f.key}" value="${c[f.key]||''}" placeholder="${f.label}"></div>`).join('')}<button type="submit" class="btn btn-primary">Sauvegarder</button></form></div></div>`;return adminLayout('Contenu & Bannière',content,'contenu');};
+
+exports.adminNewsletter=(subscribers,flash_msg)=>{const safe=Array.isArray(subscribers)?subscribers:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div class="admin-card"><div class="admin-card-header"><h3>📧 Newsletter</h3><span style="color:var(--smoke);font-size:.8rem">${safe.length} abonnés</span></div><table><tr><th>Email</th><th>Statut</th><th>Date</th></tr>${safe.map(s=>`<tr><td><strong>${s.email}</strong></td><td><span class="badge badge-${s.active?'active':'inactive'}">${s.active?'Actif':'Inactif'}</span></td><td>${new Date(s.created_at).toLocaleDateString('fr-FR')}</td></tr>`).join('')}</table></div>`;return adminLayout('Newsletter',content,'newsletter');};
+
+exports.adminBlog=(posts,flash_msg)=>{const safe=Array.isArray(posts)?posts:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div style="display:flex;justify-content:flex-end;margin-bottom:1rem"><a href="/admin/blog/nouveau" class="btn btn-primary">+ Nouvel article</a></div><div class="admin-card"><table><tr><th>Titre</th><th>Statut</th><th>Date</th><th></th></tr>${safe.map(p=>`<tr><td><strong>${p.title}</strong></td><td><span class="badge badge-${p.published?'active':'inactive'}">${p.published?'Publié':'Brouillon'}</span></td><td>${new Date(p.created_at).toLocaleDateString('fr-FR')}</td><td><a href="/admin/blog/${p.id}/edit" class="btn btn-outline btn-sm">✏️</a></td></tr>`).join('')}</table></div>`;return adminLayout('Blog',content,'blog');};
+
+exports.adminBlogForm=(post,flash_msg)=>{const isEdit=!!post;const content=`${flash_msg?`<div class="flash flash-error">${flash_msg}</div>`:''}<div class="admin-card" style="max-width:680px"><div class="admin-card-header"><h3>${isEdit?'✏️ Modifier':'➕ Nouvel'} article</h3></div><div style="padding:1.5rem"><form method="POST" action="${isEdit?`/admin/blog/${post.id}/edit`:'/admin/blog/nouveau'}"><div class="form-group"><label>Titre *</label><input name="title" required value="${isEdit?post.title:''}"></div><div class="form-group"><label>Extrait</label><input name="excerpt" value="${isEdit?(post.excerpt||''):''}" placeholder="Résumé court..."></div><div class="form-group"><label>Contenu *</label><textarea name="content" rows="10" required>${isEdit?(post.content||''):''}</textarea></div><div class="form-group"><label>Statut</label><select name="published"><option value="0" ${!isEdit||!post.published?'selected':''}>Brouillon</option><option value="1" ${isEdit&&post.published?'selected':''}>Publié</option></select></div><div style="display:flex;gap:.75rem;margin-top:1rem"><button type="submit" class="btn btn-primary">${isEdit?'Enregistrer':'Créer'}</button><a href="/admin/blog" class="btn btn-outline">Annuler</a></div></form></div></div>`;return adminLayout(isEdit?'Modifier article':'Nouvel article',content,'blog');};
+
+exports.adminFournisseurs=(suppliers,flash_msg)=>{const safe=Array.isArray(suppliers)?suppliers:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div class="admin-card" style="max-width:540px;margin-bottom:1.25rem"><div class="admin-card-header"><h3>➕ Ajouter un fournisseur</h3></div><div style="padding:1.25rem"><form method="POST" action="/admin/fournisseurs/ajouter"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem"><div class="form-group" style="grid-column:1/-1"><label>Nom *</label><input name="name" required placeholder="Shimano Europe"></div><div class="form-group"><label>Contact</label><input name="contact" placeholder="contact@shimano.com"></div><div class="form-group"><label>Téléphone</label><input name="phone" placeholder="+33 1 23 45 67 89"></div><div class="form-group" style="grid-column:1/-1"><label>Notes</label><textarea name="notes" rows="2"></textarea></div></div><button type="submit" class="btn btn-primary" style="margin-top:.5rem">Ajouter</button></form></div></div><div class="admin-card"><div class="admin-card-header"><h3>🏭 Fournisseurs</h3></div><table><tr><th>Nom</th><th>Contact</th><th>Téléphone</th><th></th></tr>${safe.map(s=>`<tr><td><strong>${s.name}</strong></td><td>${s.contact||'—'}</td><td>${s.phone||'—'}</td><td><form method="POST" action="/admin/fournisseurs/${s.id}/supprimer" onsubmit="return confirm('?')"><button type="submit" class="btn btn-danger btn-sm">🗑</button></form></td></tr>`).join('')}</table></div>`;return adminLayout('Fournisseurs',content,'fournisseurs');};
+
+exports.adminStocks=(products,flash_msg)=>{const safe=Array.isArray(products)?products:[];const low=safe.filter(p=>p.stock<(p.reorder_threshold||5));const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}${low.length?`<div class="flash flash-error">⚠️ ${low.length} produit${low.length>1?'s':''} en stock bas</div>`:''}<div class="admin-card"><div class="admin-card-header"><h3>📦 Gestion des stocks</h3></div><table><tr><th>Produit</th><th>Stock</th><th>Seuil</th><th>Statut</th><th>Modifier</th></tr>${safe.map(p=>{const t=p.reorder_threshold||5;const sc=p.stock===0?'#e74c3c':p.stock<t?'#e67e22':'#2ecc71';return`<tr><td><strong>${p.name}</strong></td><td><strong style="color:${sc};font-size:1.1rem">${p.stock}</strong></td><td style="color:var(--smoke)">${t}</td><td><span style="color:${sc};font-weight:600;font-size:.82rem">${p.stock===0?'Rupture':p.stock<t?'Stock bas':'OK'}</span></td><td><details><summary style="cursor:pointer;font-size:.78rem;color:var(--smoke);list-style:none">✏️ Modifier</summary><form method="POST" action="/admin/stocks/${p.id}/update" style="margin-top:.5rem;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap"><input type="number" name="stock" value="${p.stock}" min="0" style="width:70px;padding:.3rem .5rem;border:1px solid rgba(255,255,255,.09);border-radius:6px;background:var(--ink3);color:var(--cream);font-size:.8rem"><input type="number" name="reorder_threshold" value="${t}" min="0" placeholder="Seuil" style="width:60px;padding:.3rem .5rem;border:1px solid rgba(255,255,255,.09);border-radius:6px;background:var(--ink3);color:var(--cream);font-size:.8rem"><button type="submit" class="btn btn-primary btn-sm">✓</button></form></details></td></tr>`;}).join('')}</table></div>`;return adminLayout('Stocks',content,'stocks');};
+
+exports.adminFinances=(stats,requests,flash_msg)=>{const totalProfit=((stats||{}).topProducts||[]).reduce((s,p)=>s+(p.profit||0),0);const revenue=Number((stats||{}).revenue||0);const margin=revenue>0?(totalProfit/revenue*100).toFixed(1):0;const safeReqs=Array.isArray(requests)?requests:[];const content=`${flash_msg?`<div class="flash flash-success">${flash_msg}</div>`:''}<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem"><div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value">${revenue.toFixed(0)} CHF</div><div class="stat-label">Chiffre d'affaires</div><div class="stat-accent"></div></div><div class="stat-card"><div class="stat-icon">📈</div><div class="stat-value">${Number(totalProfit).toFixed(0)} CHF</div><div class="stat-label">Bénéfice estimé</div><div class="stat-accent"></div></div><div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value">${margin}%</div><div class="stat-label">Marge moyenne</div><div class="stat-accent"></div></div><div class="stat-card"><div class="stat-icon">🛒</div><div class="stat-value">${Number((stats||{}).avgOrder||0).toFixed(0)} CHF</div><div class="stat-label">Panier moyen</div><div class="stat-accent"></div></div></div><div class="admin-card"><div class="admin-card-header"><h3>📊 Marges par produit</h3></div><table><tr><th>Produit</th><th>Prix vente</th><th>Vendus</th><th>CA</th><th>Bénéfice</th></tr>${((stats||{}).topProducts||[]).map(p=>`<tr><td><strong>${p.name}</strong></td><td>${Number(p.price||0).toFixed(2)} CHF</td><td style="color:var(--smoke)">${p.sold||0}</td><td><strong style="color:var(--amber2)">${Number(p.revenue||0).toFixed(0)} CHF</strong></td><td>${p.profit>0?`<strong style="color:var(--amber2)">${Number(p.profit).toFixed(0)} CHF</strong>`:'—'}</td></tr>`).join('')}</table></div>`;return adminLayout('Finances & Marges',content,'finances');};
+
+exports.wishlist=(req,user,items)=>layout('Ma wishlist',`<section class="section"><div class="container" style="max-width:900px"><h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--white);margin-bottom:2rem">❤️ Ma wishlist</h1>${Array.isArray(items)&&items.length?`<div class="products-grid">${items.map(p=>productCard(p)).join('')}</div>`:`<div style="text-align:center;padding:4rem;color:var(--smoke)"><p style="font-size:3rem;margin-bottom:1rem">🤍</p><p>Ta wishlist est vide</p><a href="/catalogue" class="btn btn-primary" style="margin-top:1rem">Explorer le catalogue</a></div>`}</div></section>`,user,getCartCount(req));
+
+exports.tickets=(req,user,tickets_list)=>layout('Support',`<section class="section"><div class="container" style="max-width:860px"><h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--white);margin-bottom:2rem">💬 Support</h1>${flash(req)}<div style="background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:1.5rem;margin-bottom:2rem"><h3 style="font-weight:600;font-size:.9rem;color:var(--white);margin-bottom:1rem">Nouveau ticket</h3><form method="POST" action="/tickets"><div class="form-group"><label>Sujet</label><input name="subject" required placeholder="Problème de commande..."></div><div class="form-group"><label>Message</label><textarea name="message" required placeholder="Décris ton problème..."></textarea></div><button type="submit" class="btn btn-primary">Envoyer</button></form></div>${Array.isArray(tickets_list)&&tickets_list.length?`<div class="admin-card"><table><tr><th>#</th><th>Sujet</th><th>Statut</th><th>Date</th></tr>${tickets_list.map(t=>`<tr><td><strong>#${t.id}</strong></td><td>${t.subject}</td><td><span class="badge badge-${t.status==='ouvert'?'open':'active'}">${t.status}</span></td><td style="font-size:.8rem">${new Date(t.created_at).toLocaleDateString('fr-FR')}</td></tr>`).join('')}</table></div>`:''}</div></section>`,user,getCartCount(req));
+
+exports.parrainage=(req,user,fullUser,referrals,pointsHistory)=>layout('Parrainage',`<section class="section"><div class="container" style="max-width:700px"><h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--white);margin-bottom:2rem">🎁 Programme de parrainage</h1>${flash(req)}<div style="background:var(--ink2);border:1px solid rgba(200,132,30,.3);border-radius:16px;padding:2rem;text-align:center;margin-bottom:2rem"><p style="color:var(--smoke);font-size:.875rem;margin-bottom:1rem">Ton code de parrainage</p><div style="background:var(--ink3);border:2px dashed rgba(200,132,30,.4);border-radius:12px;padding:1.25rem;cursor:pointer;margin-bottom:1rem" onclick="navigator.clipboard.writeText('${fullUser.referral_code||''}');this.querySelector('p').textContent='Copié ✓'"><code style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--amber2);letter-spacing:.2em;font-weight:700">${fullUser.referral_code||'—'}</code><p style="font-size:.75rem;color:var(--fog);margin-top:.4rem">Cliquer pour copier</p></div><p style="font-size:.85rem;color:var(--smoke)">Tu gagnes <strong style="color:var(--amber2)">50 points</strong> pour chaque ami parrainé · Solde : <strong style="color:var(--amber2)">${fullUser.points||0} pts</strong></p></div></div></section>`,user,getCartCount(req));
+
+exports.facture=(order,items)=>{const safeItems=Array.isArray(items)?items:[];return`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Facture #${order.id}</title><style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#1a1a1a}.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:2px solid #c8841e}.brand{font-size:1.5rem;font-weight:700;color:#c8841e}table{width:100%;border-collapse:collapse;margin:1.5rem 0}th{background:#f5f0e8;padding:.6rem .9rem;text-align:left;font-size:.8rem;text-transform:uppercase;color:#666;border-bottom:1px solid #ddd}td{padding:.7rem .9rem;border-bottom:1px solid #eee;font-size:.875rem}.total-row td{font-weight:700;font-size:1rem;border-top:2px solid #c8841e;border-bottom:none}</style></head><body><div class="header"><div><div class="brand">🎣 PêchePro</div></div><div style="text-align:right"><h2 style="font-size:1.3rem;margin-bottom:.3rem">Facture #${order.id}</h2><p style="color:#666;font-size:.8rem">${new Date(order.created_at).toLocaleDateString('fr-FR')}</p></div></div><div style="margin-bottom:2rem"><p style="font-weight:600">${order.name}</p><p style="color:#666;font-size:.875rem">${order.email}</p>${order.address?`<p style="color:#666;font-size:.875rem;margin-top:.3rem">${order.address}, ${order.zip} ${order.city}</p>`:''}</div><table><tr><th>Produit</th><th>Prix unit.</th><th>Qté</th><th>Total</th></tr>${safeItems.map(i=>`<tr><td>${i.name}</td><td>${Number(i.price).toFixed(2)} CHF</td><td>${i.quantity}</td><td><strong>${(i.price*i.quantity).toFixed(2)} CHF</strong></td></tr>`).join('')}${order.discount>0?`<tr><td colspan="3" style="text-align:right;color:#888">Réduction</td><td style="color:#c8841e">-${Number(order.discount).toFixed(2)} CHF</td></tr>`:''}<tr class="total-row"><td colspan="3" style="text-align:right">Total</td><td style="color:#c8841e">${Number(order.total).toFixed(2)} CHF</td></tr></table><div style="text-align:center;margin-top:2rem"><button onclick="window.print()" style="background:#c8841e;color:#fff;border:none;padding:.75rem 2rem;border-radius:8px;cursor:pointer;font-weight:700">Imprimer / PDF</button></div></body></html>`;};
+
+exports.suiviCommande=(req,user,order,items)=>{const safeItems=Array.isArray(items)?items:[];return layout(`Commande #${order.id}`,`<section class="section"><div class="container" style="max-width:700px"><h1 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--white);margin-bottom:2rem">🚚 Commande #${order.id}</h1><div style="background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem"><div><p style="color:var(--smoke);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Statut</p><span class="badge badge-${order.status==='payé'?'paid':order.status==='expédié'?'shipped':order.status==='annulé'?'cancelled':'pending'}">${order.status}</span></div><div><p style="color:var(--smoke);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">Date</p><p style="font-weight:600;color:var(--white)">${new Date(order.created_at).toLocaleDateString('fr-FR')}</p></div>${order.tracking_number?`<div style="grid-column:1/-1"><p style="color:var(--smoke);font-size:.75rem;text-transform:uppercase;margin-bottom:.3rem">Numéro de suivi</p><p style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--amber2);letter-spacing:.12em">${order.tracking_number}</p></div>`:''}</div></div><div class="admin-card"><table><tr><th>Produit</th><th>Prix</th><th>Qté</th><th>Total</th></tr>${safeItems.map(i=>`<tr><td><strong>${i.name}</strong></td><td>${Number(i.price).toFixed(2)} CHF</td><td>${i.quantity}</td><td><strong style="color:var(--amber2)">${(i.price*i.quantity).toFixed(2)} CHF</strong></td></tr>`).join('')}</table></div><div style="display:flex;gap:.75rem;margin-top:1rem"><a href="/compte" class="btn btn-outline">← Mon compte</a><a href="/facture/${order.id}" class="btn btn-primary" target="_blank">📄 Facture</a></div></div></section>`,user,getCartCount(req));};
